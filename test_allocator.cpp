@@ -1,10 +1,11 @@
-// #include "mmap_allocator.h"
+#include "mmap_allocator.h"
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
 #include <memory>
 
 using namespace std;
+using namespace mmap_allocator_namespace;
 
 void generate_test_file(void)
 {
@@ -23,8 +24,7 @@ int main(int argc, char ** argv)
 {
 	generate_test_file();
 
-	vector<int> int_vec(1024, 0, allocator<int>());
-//	vector<int> int_vec(1024);
+	vector<int> int_vec(1024, 0, mmap_allocator<int>());
 	int i;
 	for (i=0;i<1024;i++) {
 		assert(int_vec[i] == i);
