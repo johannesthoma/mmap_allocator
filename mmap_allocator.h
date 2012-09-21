@@ -8,8 +8,7 @@
 namespace mmap_allocator_namespace
 {
 	class mmap_allocator_exception: public std::exception {
-		std::string msg; 
-
+public:
 		mmap_allocator_exception() throw(): 
 			std::exception(),
 			msg("Unknown reason")
@@ -30,6 +29,8 @@ namespace mmap_allocator_namespace
 		{
 			return msg.c_str();
 		}
+private:
+		std::string msg; 
 	};
 
 	template <typename T> 
@@ -49,6 +50,7 @@ public:
 		pointer allocate(size_type n, const void *hint=0)
 		{
 			fprintf(stderr, "Alloc %d bytes.\n", n);
+			open_and_mmap_file();
 			return std::allocator<T>::allocate(n, hint);
 		}
 
@@ -65,12 +67,11 @@ public:
 			offset(a.offset),
                         fd(a.fd)
 		{ }
-		mmap_allocator(const std::string filename_param, off_t offset_param) throw():
+		mmap_allocator(const std::string filename_param, off_t offset_param) throw(mmap_allocator_exception):
 			std::allocator<T>(),
 			filename(filename_param),
 			offset(offset_param)
 		{
-			open_and_mmap_file();
 		}
 			
 		~mmap_allocator() throw() { }
@@ -80,10 +81,11 @@ private:
 		off_t offset;
 		int fd;
 
-		void open_and_mmap_file(void) throw()
+		void open_and_mmap_file(void)
 		{
 			fd = open(filename.c_str(), O_RDONLY);
 			if (fd < 0) {
+				fprintf(stderr, "zak2\n");
 				throw mmap_allocator_exception("No such file or directory");
 			}
 		}
