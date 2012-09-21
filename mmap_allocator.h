@@ -8,6 +8,12 @@
 
 namespace mmap_allocator_namespace
 {
+	enum access_mode {
+		READ_ONLY,  /* Readonly modus. Segfaults when vector content is written to */
+		READ_WRITE_PRIVATE, /* Read/write access, writes are not propagated to disk */
+		READ_WRITE_SHARED, /* Read/write access, writes are propagated to disk (file is modified) */
+	};
+
 	class mmap_allocator_exception: public std::exception {
 public:
 		mmap_allocator_exception() throw(): 
@@ -66,6 +72,7 @@ public:
 			std::allocator<T>(),
 			filename(""),
 			offset(0),
+			access_mode(READ_ONLY),
 			fd(-1),
 			memory_area(NULL)
 		{ }
@@ -73,13 +80,15 @@ public:
 			std::allocator<T>(a),
 			filename(a.filename),
 			offset(a.offset),
+			access_mode(a.access_mode),
                         fd(a.fd),
 			memory_area(a.memory_area)
 		{ }
-		mmap_allocator(const std::string filename_param, off_t offset_param = 0) throw():
+		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, off_t offset_param = 0) throw():
 			std::allocator<T>(),
 			filename(filename_param),
 			offset(offset_param),
+			access_mode(access_mode_param),
 			fd(-1),
 			memory_area(NULL)
 		{
@@ -90,6 +99,7 @@ public:
 private:
 		std::string filename;
 		off_t offset;
+		enum access_mode access_mode;
 		int fd;
 		void *memory_area;
 
@@ -99,13 +109,21 @@ private:
 			if (filename.c_str()[0] == '\0') {
 				throw mmap_allocator_exception("mmap_allocator not correctly initialized: filename is empty.");
 			}
-			// fd = open(filename.c_str(), O_RDONLY);
-			fd = open(filename.c_str(), O_RDWR);
+			int mode;
+			int prot;
+			int mmap_mode;
+
+			switch (access_mode) {
+			case READ_ONLY: mode = O_RDONLY; prot = PROT_READ; mmap_mode = MAP_SHARED; break;
+			case READ_WRITE_SHARED: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_SHARED; break;
+			case READ_WRITE_PRIVATE: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_PRIVATE; break;
+			}
+
+			fd = open(filename.c_str(), mode);
 			if (fd < 0) {
 				throw mmap_allocator_exception("No such file or directory");
 			}
-//			memory_area = mmap(NULL, length, PROT_READ, MAP_SHARED, fd, offset);
-			memory_area = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
+			memory_area = mmap(NULL, length, prot, mmap_mode, fd, offset);
 			if (memory_area == MAP_FAILED) {
 				throw mmap_allocator_exception("Error in mmap");
 			}
