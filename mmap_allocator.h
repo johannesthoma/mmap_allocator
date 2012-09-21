@@ -9,9 +9,10 @@
 namespace mmap_allocator_namespace
 {
 	enum access_mode {
+		DEFAULT_STL_ALLOCATOR, /* Default STL allocator (malloc based). Reason is to have containers that do both and are compatible */
 		READ_ONLY,  /* Readonly modus. Segfaults when vector content is written to */
 		READ_WRITE_PRIVATE, /* Read/write access, writes are not propagated to disk */
-		READ_WRITE_SHARED, /* Read/write access, writes are propagated to disk (file is modified) */
+		READ_WRITE_SHARED  /* Read/write access, writes are propagated to disk (file is modified) */
 	};
 
 	class mmap_allocator_exception: public std::exception {
@@ -57,15 +58,22 @@ public:
 		pointer allocate(size_type n, const void *hint=0)
 		{
 			fprintf(stderr, "Alloc %d bytes.\n", n);
-			open_and_mmap_file(n);
-			fprintf(stderr, "mem-area = %p\n", memory_area);
-			return (pointer)memory_area;
+			if (access_mode == DEFAULT_STL_ALLOCATOR) {
+				return std::allocator<T>::allocate(n, hint);
+			} else {
+				open_and_mmap_file(n);
+				return (pointer)memory_area;
+			}
 		}
 
 		void deallocate(pointer p, size_type n)
 		{
 			fprintf(stderr, "Dealloc %d bytes (%p).\n", n, p);
-			return std::allocator<T>::deallocate(p, n);
+			if (access_mode == DEFAULT_STL_ALLOCATOR) {
+				std::allocator<T>::deallocate(p, n);
+			} else {
+				munmap_and_close_file();
+			}
 		}
 
 		mmap_allocator() throw(): 
@@ -74,7 +82,8 @@ public:
 			offset(0),
 			access_mode(READ_ONLY),
 			fd(-1),
-			memory_area(NULL)
+			memory_area(NULL),
+			size_mapped(0)
 		{ }
 		mmap_allocator(const mmap_allocator &a) throw():
 			std::allocator<T>(a),
@@ -82,7 +91,8 @@ public:
 			offset(a.offset),
 			access_mode(a.access_mode),
                         fd(a.fd),
-			memory_area(a.memory_area)
+			memory_area(a.memory_area),
+			size_mapped(a.size_mapped)
 		{ }
 		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, off_t offset_param = 0) throw():
 			std::allocator<T>(),
@@ -90,7 +100,8 @@ public:
 			offset(offset_param),
 			access_mode(access_mode_param),
 			fd(-1),
-			memory_area(NULL)
+			memory_area(NULL),
+			size_mapped(0)
 		{
 		}
 			
@@ -102,6 +113,7 @@ private:
 		enum access_mode access_mode;
 		int fd;
 		void *memory_area;
+		size_t size_mapped;
 
 		void open_and_mmap_file(size_t length)
 		/* Must not be called from within constructors since they must not throw exceptions */
@@ -117,15 +129,28 @@ private:
 			case READ_ONLY: mode = O_RDONLY; prot = PROT_READ; mmap_mode = MAP_SHARED; break;
 			case READ_WRITE_SHARED: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_SHARED; break;
 			case READ_WRITE_PRIVATE: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_PRIVATE; break;
+			case DEFAULT_STL_ALLOCATOR: throw mmap_allocator_exception("Internal error"); break;
 			}
 
 			fd = open(filename.c_str(), mode);
 			if (fd < 0) {
-				throw mmap_allocator_exception("No such file or directory");
+				throw mmap_allocator_exception("Error opening file");
 			}
 			memory_area = mmap(NULL, length, prot, mmap_mode, fd, offset);
 			if (memory_area == MAP_FAILED) {
 				throw mmap_allocator_exception("Error in mmap");
+			}
+			size_mapped = length;
+		}
+
+		void munmap_and_close_file(void)
+		{
+			munmap(memory_area, size_mapped);
+			if (munmap(memory_area, size_mapped) < 0) {
+				throw mmap_allocator_exception("Error in munmap");
+			}
+			if (close(fd)) {
+				throw mmap_allocator_exception("Error in close");
 			}
 		}
 	};

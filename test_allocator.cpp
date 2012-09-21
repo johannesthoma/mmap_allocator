@@ -90,6 +90,16 @@ void test_mmap(void)
 {
 	int i;
 
+	fprintf(stderr, "Testing int_vec_default\n");
+	generate_test_file();
+	vector<int, mmap_allocator<int> > int_vec_default = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", DEFAULT_STL_ALLOCATOR, 0));
+	int_vec_default.reserve(1024);
+	for (i=0;i<1024;i++) {
+		int_vec_default[i] = i; /* no segfault */	
+		assert(int_vec_default[i] == i); /* just to be sure */
+	}
+	test_test_file(false);
+
 	fprintf(stderr, "Testing int_vec_rw_private\n");
 	generate_test_file();
 	vector<int, mmap_allocator<int> > int_vec_rw_private = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_WRITE_PRIVATE, 0));
