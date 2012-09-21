@@ -44,17 +44,24 @@ void test_exceptions(void)
 {
 	bool exception_thrown;
 
-fprintf(stderr, "karin\n");
 	exception_thrown = false;
 	try {
-		vector<int, mmap_allocator<int> > int_vec_notexsting_file(1024, 0, mmap_allocator<int>("karin", 0)); /* no such file or directory */
-	// } catch (mmap_allocator_exception e) {
-	} catch (...) {
-//		fprintf(stderr, "Exception message: %s\n", e.message());
+		vector<int, mmap_allocator<int> > int_vec(1024, 0, mmap_allocator<int>());
+			/* Default constructor used, allocate will fail */
+	} catch (mmap_allocator_exception e) {
+		fprintf(stderr, "Exception message: %s\n", e.message());
 		exception_thrown = true;
 	}
 	assert(exception_thrown);
-fprintf(stderr, "zak\n");
+
+	exception_thrown = false;
+	try {
+		vector<int, mmap_allocator<int> > int_vec_notexsting_file(1024, 0, mmap_allocator<int>("karin", 0)); /* no such file or directory */
+	} catch (mmap_allocator_exception e) {
+		fprintf(stderr, "Exception message: %s\n", e.message());
+		exception_thrown = true;
+	}
+	assert(exception_thrown);
 
 	exception_thrown = false;
 	try {
@@ -66,30 +73,27 @@ fprintf(stderr, "zak\n");
 	assert(exception_thrown);
 }
 
+void test_mmap(void)
+{
+	int i;
+
+fprintf(stderr, "zak\n");
+	vector<int, mmap_allocator<int> > int_vec = vector<int, mmap_allocator<int> >(1024, 0, mmap_allocator<int>("testfile", 0));
+	for (i=0;i<1024;i++) {
+		assert(int_vec[i] == i);
+	}
+
+	vector<int, mmap_allocator<int> > *int_vec_pointer = new vector<int, mmap_allocator<int> >(1024, 0, mmap_allocator<int>("testfile", 0));
+	for (i=0;i<1024;i++) {
+		assert((*int_vec_pointer)[i] == i);
+	}
+}
+
 
 int main(int argc, char ** argv)
 {
 	generate_test_file();
 	test_throw_catch();
 	test_exceptions();
-
-	vector<int, mmap_allocator<int> > int_vec(1024, 0, mmap_allocator<int>());
-	vector<int> test_vec;
-	vector<int> test_vec2;
-
-	test_vec = test_vec2;
-
-	mmap_allocator<int> a;
-	a.allocate(10);
-
-/*
-	int i;
-	for (i=0;i<1024;i++) {
-		assert((*int_vec_pointer)[i] == i);
-	}
-*/
-
-	vector<int, mmap_allocator<int> > *int_vec_pointer = new vector<int, mmap_allocator<int> >(1024, 0, mmap_allocator<int>());
-
-	return 0;
+	test_mmap();
 }

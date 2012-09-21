@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 
 namespace mmap_allocator_namespace
 {
@@ -50,8 +51,9 @@ public:
 		pointer allocate(size_type n, const void *hint=0)
 		{
 			fprintf(stderr, "Alloc %d bytes.\n", n);
-			open_and_mmap_file();
-			return std::allocator<T>::allocate(n, hint);
+			open_and_mmap_file(n);
+			fprintf(stderr, "mem-area = %p\n", memory_area);
+			return (pointer)memory_area;
 		}
 
 		void deallocate(pointer p, size_type n)
@@ -60,17 +62,26 @@ public:
 			return std::allocator<T>::deallocate(p, n);
 		}
 
-		mmap_allocator() throw(): std::allocator<T>() { }
+		mmap_allocator() throw(): 
+			std::allocator<T>(),
+			filename(""),
+			offset(0),
+			fd(-1),
+			memory_area(NULL)
+		{ }
 		mmap_allocator(const mmap_allocator &a) throw():
 			std::allocator<T>(a),
 			filename(a.filename),
 			offset(a.offset),
-                        fd(a.fd)
+                        fd(a.fd),
+			memory_area(a.memory_area)
 		{ }
-		mmap_allocator(const std::string filename_param, off_t offset_param) throw(mmap_allocator_exception):
+		mmap_allocator(const std::string filename_param, off_t offset_param = 0) throw():
 			std::allocator<T>(),
 			filename(filename_param),
-			offset(offset_param)
+			offset(offset_param),
+			fd(-1),
+			memory_area(NULL)
 		{
 		}
 			
@@ -80,13 +91,23 @@ private:
 		std::string filename;
 		off_t offset;
 		int fd;
+		void *memory_area;
 
-		void open_and_mmap_file(void)
+		void open_and_mmap_file(size_t length)
+		/* Must not be called from within constructors since they must not throw exceptions */
 		{
-			fd = open(filename.c_str(), O_RDONLY);
+			if (filename.c_str()[0] == '\0') {
+				throw mmap_allocator_exception("mmap_allocator not correctly initialized: filename is empty.");
+			}
+			// fd = open(filename.c_str(), O_RDONLY);
+			fd = open(filename.c_str(), O_RDWR);
 			if (fd < 0) {
-				fprintf(stderr, "zak2\n");
 				throw mmap_allocator_exception("No such file or directory");
+			}
+//			memory_area = mmap(NULL, length, PROT_READ, MAP_SHARED, fd, offset);
+			memory_area = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
+			if (memory_area == MAP_FAILED) {
+				throw mmap_allocator_exception("Error in mmap");
 			}
 		}
 	};
