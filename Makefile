@@ -6,4 +6,4 @@ test: test_allocator
 test_allocator: mmap_allocator.h
 
 clean:
-	rm test_allocator testfile
+	rm -f test_allocator testfile
