@@ -72,6 +72,7 @@ void test_exceptions(void)
 {
 	bool exception_thrown;
 
+	generate_test_file(1024);
 	exception_thrown = false;
 	try {
 		vector<int, mmap_allocator<int> > int_vec(1024, 0, mmap_allocator<int>());
