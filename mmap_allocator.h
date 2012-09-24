@@ -31,6 +31,9 @@ public:
 			std::exception(),
 			msg(msg_param)
 		{
+#ifdef MMAP_ALLOCATOR_DEBUG
+			fprintf(stderr, "Throwing exception %s\n", msg_param);
+#endif
 		}
 
 		virtual ~mmap_allocator_exception(void) throw()
