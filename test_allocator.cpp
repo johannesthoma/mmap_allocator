@@ -75,7 +75,7 @@ void test_exceptions(void)
 	generate_test_file(1024);
 	exception_thrown = false;
 	try {
-		vector<int, mmap_allocator<int> > int_vec(1024, 0, mmap_allocator<int>());
+		vector<int, mmap_allocator<int> > int_vec(1024, 0, mmap_allocator<int>("", READ_ONLY));
 			/* Default constructor used, allocate will fail */
 	} catch (mmap_allocator_exception e) {
 		fprintf(stderr, "Exception message: %s\n", e.message());
@@ -85,7 +85,7 @@ void test_exceptions(void)
 
 	exception_thrown = false;
 	try {
-		vector<int, mmap_allocator<int> > int_vec_notexsting_file(1024, 0, mmap_allocator<int>("karin")); /* no such file or directory */
+		vector<int, mmap_allocator<int> > int_vec_notexsting_file(1024, 0, mmap_allocator<int>("karin", READ_ONLY)); /* no such file or directory */
 	} catch (mmap_allocator_exception e) {
 		fprintf(stderr, "Exception message: %s\n", e.message());
 		exception_thrown = true;

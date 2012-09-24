@@ -97,7 +97,7 @@ public:
 			std::allocator<T>(),
 			filename(""),
 			offset(0),
-			access_mode(READ_ONLY),
+			access_mode(DEFAULT_STL_ALLOCATOR),
 			fd(-1),
 			memory_area(NULL),
 			size_mapped(0)
