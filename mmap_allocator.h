@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #define ALIGN_TO_PAGE(x) ((x) & ~(getpagesize() - 1))
+#define UPPER_ALIGN_TO_PAGE(x) ALIGN_TO_PAGE((x)+(getpagesize()-1))
 #define OFFSET_INTO_PAGE(x) ((x) & (getpagesize() - 1))
 
 namespace mmap_allocator_namespace
@@ -152,7 +153,7 @@ private:
 			if (fd < 0) {
 				throw mmap_allocator_exception("Error opening file");
 			}
-			memory_area = mmap(NULL, length, prot, mmap_mode, fd, ALIGN_TO_PAGE(offset));
+			memory_area = mmap(NULL, UPPER_ALIGN_TO_PAGE(length), prot, mmap_mode, fd, ALIGN_TO_PAGE(offset));
 			if (memory_area == MAP_FAILED) {
 				throw mmap_allocator_exception("Error in mmap");
 			}

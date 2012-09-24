@@ -37,6 +37,21 @@ void do_throw(void)
 	throw mmap_allocator_exception("Test2");
 }
 
+void test_page_align_macros(void)
+{
+	int p;
+
+	p = 0x8000;
+	assert(ALIGN_TO_PAGE(p) == 0x8000);
+	assert(UPPER_ALIGN_TO_PAGE(p) == 0x8000);
+	assert(OFFSET_INTO_PAGE(p) == 0x0);
+
+	p = 0x64ab;
+	assert(ALIGN_TO_PAGE(p) == 0x6000);
+	assert(UPPER_ALIGN_TO_PAGE(p) == 0x7000);
+	assert(OFFSET_INTO_PAGE(p) == 0x4ab);
+}
+
 void test_throw_catch(void)
 {
 	try {
@@ -155,11 +170,21 @@ void test_mmap(void)
 		assert(int_vec_big[i] == i);
 	}
 	test_test_file(1024*1024, false);
+
+	fprintf(stderr, "Testing int_vec_shifted_big\n");
+	generate_test_file(1024*1024);
+	vector<int, mmap_allocator<int> > int_vec_shifted_big = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, sizeof(i)));
+	int_vec_shifted_big.reserve(1024*1024-1);
+	for (i=0;i<1024*1024-1;i++) {
+		assert(int_vec_shifted_big[i] == i+1);
+	}
+	test_test_file(1024*1024, false);
 }
 
 
 int main(int argc, char ** argv)
 {
+	test_page_align_macros();
 	test_throw_catch();
 	test_exceptions();
 	test_mmap();
