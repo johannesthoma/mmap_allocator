@@ -70,7 +70,7 @@ public:
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
 			} else {
-				open_and_mmap_file(n);
+				open_and_mmap_file(n*sizeof(T));
 				pointer p = (pointer)((char*)memory_area+OFFSET_INTO_PAGE(offset));
 #ifdef MMAP_ALLOCATOR_DEBUG
 				fprintf(stderr, "pointer = %p\n", p);

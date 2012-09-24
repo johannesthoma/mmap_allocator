@@ -7,25 +7,25 @@
 using namespace std;
 using namespace mmap_allocator_namespace;
 
-void generate_test_file(void)
+void generate_test_file(int count)
 {
 	FILE *f;
 	int i;
 
 	f = fopen("testfile", "w+");
-	for (i=0;i<1024;i++) {
+	for (i=0;i<count;i++) {
 		fwrite(&i, 1, sizeof(i), f);
 	}
 	fclose(f);
 }
 
-void test_test_file(bool expect_zeros)
+void test_test_file(int count, bool expect_zeros)
 {
 	FILE *f;
 	int i, j;
 
 	f = fopen("testfile", "r");
-	for (i=0;i<1024;i++) {
+	for (i=0;i<count;i++) {
 		fread(&j, 1, sizeof(j), f);
 		assert(j == (expect_zeros ? 0 : i));
 	}
@@ -91,23 +91,23 @@ void test_mmap(void)
 	int i;
 
 	fprintf(stderr, "Testing int_vec_default\n");
-	generate_test_file();
+	generate_test_file(1024);
 	vector<int, mmap_allocator<int> > int_vec_default = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", DEFAULT_STL_ALLOCATOR, 0));
 	int_vec_default.reserve(1024);
 	for (i=0;i<1024;i++) {
 		int_vec_default[i] = i; /* no segfault */	
 		assert(int_vec_default[i] == i); /* just to be sure */
 	}
-	test_test_file(false);
+	test_test_file(1024, false);
 
 	fprintf(stderr, "Testing int_vec_rw_private\n");
-	generate_test_file();
+	generate_test_file(1024);
 	vector<int, mmap_allocator<int> > int_vec_rw_private = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_WRITE_PRIVATE, 0));
 	int_vec_rw_private.reserve(1024);
 	for (i=0;i<1024;i++) {
 		assert(int_vec_rw_private[i] == i);
 	}
-	test_test_file(false);
+	test_test_file(1024, false);
 
 	fprintf(stderr, "Testing int_vec_ro\n");
 	vector<int, mmap_allocator<int> > int_vec_ro = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0));
@@ -115,7 +115,7 @@ void test_mmap(void)
 	for (i=0;i<1024;i++) {
 		assert(int_vec_ro[i] == i);
 	}
-	test_test_file(false);
+	test_test_file(1024, false);
 
 	fprintf(stderr, "Testing int_vec_shifted\n");
 	vector<int, mmap_allocator<int> > int_vec_shifted = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, sizeof(int)));
@@ -123,7 +123,7 @@ void test_mmap(void)
 	for (i=0;i<1024-1;i++) {
 		assert(int_vec_shifted[i] == i+1);
 	}
-	test_test_file(false);
+	test_test_file(1024, false);
 
 	fprintf(stderr, "Testing int_vec_pointer\n");
 	vector<int, mmap_allocator<int> > *int_vec_pointer = new vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0));
@@ -131,27 +131,35 @@ void test_mmap(void)
 	for (i=0;i<1024;i++) {
 		assert((*int_vec_pointer)[i] == i);
 	}
-	test_test_file(false);
+	test_test_file(1024, false);
 
 	fprintf(stderr, "Testing int_vec_initialized_private\n");
 	vector<int, mmap_allocator<int> > int_vec_initialized_private = vector<int, mmap_allocator<int> >(1024, 0, mmap_allocator<int>("testfile", READ_WRITE_PRIVATE, 0));
 	for (i=0;i<1024;i++) {
 		assert(int_vec_initialized_private[i] == 0);
 	}
-	test_test_file(false);
+	test_test_file(1024, false);
 
 	fprintf(stderr, "Testing int_vec_initialized_shared\n");
 	vector<int, mmap_allocator<int> > int_vec_initialized_shared = vector<int, mmap_allocator<int> >(1024, 0, mmap_allocator<int>("testfile", READ_WRITE_SHARED, 0));
 	for (i=0;i<1024;i++) {
 		assert(int_vec_initialized_shared[i] == 0);
 	}
-	test_test_file(true);
+	test_test_file(1024, true);
+
+	fprintf(stderr, "Testing int_vec_big\n");
+	generate_test_file(1024*1024);
+	vector<int, mmap_allocator<int> > int_vec_big = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0));
+	int_vec_big.reserve(1024*1024);
+	for (i=0;i<1024*1024;i++) {
+		assert(int_vec_big[i] == i);
+	}
+	test_test_file(1024*1024, false);
 }
 
 
 int main(int argc, char ** argv)
 {
-	generate_test_file();
 	test_throw_catch();
 	test_exceptions();
 	test_mmap();
