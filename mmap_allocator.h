@@ -1,3 +1,6 @@
+#ifndef _MMAP_ALLOCATOR_H
+#define _MMAP_ALLOCATOR_H
+
 #include <memory>
 #include <string>
 #include <stdio.h>
@@ -172,3 +175,5 @@ private:
 		}
 	};
 }
+
+#endif /* _MMAP_ALLOCATOR_H */
