@@ -5,6 +5,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
+
+#define ALIGN_TO_PAGE(x) ((x) & ~(getpagesize() - 1))
+#define OFFSET_INTO_PAGE(x) ((x) & (getpagesize() - 1))
 
 namespace mmap_allocator_namespace
 {
@@ -64,7 +68,12 @@ public:
 				return std::allocator<T>::allocate(n, hint);
 			} else {
 				open_and_mmap_file(n);
-				return (pointer)memory_area;
+				pointer p = (pointer)((char*)memory_area+OFFSET_INTO_PAGE(offset));
+#ifdef MMAP_ALLOCATOR_DEBUG
+				fprintf(stderr, "pointer = %p\n", p);
+#endif
+				
+				return p;
 			}
 		}
 
@@ -140,7 +149,7 @@ private:
 			if (fd < 0) {
 				throw mmap_allocator_exception("Error opening file");
 			}
-			memory_area = mmap(NULL, length, prot, mmap_mode, fd, offset);
+			memory_area = mmap(NULL, length, prot, mmap_mode, fd, ALIGN_TO_PAGE(offset));
 			if (memory_area == MAP_FAILED) {
 				throw mmap_allocator_exception("Error in mmap");
 			}

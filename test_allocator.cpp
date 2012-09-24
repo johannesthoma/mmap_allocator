@@ -78,12 +78,12 @@ void test_exceptions(void)
 
 	exception_thrown = false;
 	try {
-		vector<int, mmap_allocator<int> > int_vec_notexsting_file(1024, 0, mmap_allocator<int>("testfile", READ_ONLY, 123)); /* wrong alignment */
+		vector<int, mmap_allocator<int> > int_vec_wrong_alignment_file(512, 0, mmap_allocator<int>("testfile", READ_WRITE_PRIVATE, 123)); /* wrong alignment */
 	} catch (mmap_allocator_exception &e) {
 		fprintf(stderr, "Exception message: %s\n", e.message());
 		exception_thrown = true;
 	}
-	assert(exception_thrown);
+	assert(!exception_thrown);
 }
 
 void test_mmap(void)
@@ -114,6 +114,14 @@ void test_mmap(void)
 	int_vec_ro.reserve(1024);
 	for (i=0;i<1024;i++) {
 		assert(int_vec_ro[i] == i);
+	}
+	test_test_file(false);
+
+	fprintf(stderr, "Testing int_vec_shifted\n");
+	vector<int, mmap_allocator<int> > int_vec_shifted = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, sizeof(int)));
+	int_vec_shifted.reserve(1024-1);
+	for (i=0;i<1024-1;i++) {
+		assert(int_vec_shifted[i] == i+1);
 	}
 	test_test_file(false);
 
