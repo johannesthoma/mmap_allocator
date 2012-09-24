@@ -180,6 +180,16 @@ void test_mmap(void)
 		assert(int_vec_shifted_big[i] == i+1);
 	}
 	test_test_file(1024*1024, false);
+
+	fprintf(stderr, "Testing int_vec_big_minus_one\n");
+	generate_test_file(1024*1024-1);
+	vector<int, mmap_allocator<int> > int_vec_big_minus_one = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0));
+	int_vec_big_minus_one.reserve(1024*1024-1);
+	for (i=0;i<1024*1024-1;i++) {
+		assert(int_vec_big_minus_one[i] == i);
+	}
+	test_test_file(1024*1024-1, false);
+
 }
 
 
