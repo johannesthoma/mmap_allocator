@@ -192,6 +192,17 @@ void test_mmap(void)
 
 }
 
+void test_conversion(void)
+{
+	vector<int, mmap_allocator<int> > mmap_vector = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", DEFAULT_STL_ALLOCATOR, 0));
+
+	vector<int> std_vector;
+
+	std_vector = to_std_vector(mmap_vector);
+	mmap_vector = to_mmap_vector(std_vector);
+}
+
+
 
 int main(int argc, char ** argv)
 {
@@ -199,4 +210,5 @@ int main(int argc, char ** argv)
 	test_throw_catch();
 	test_exceptions();
 	test_mmap();
+	test_conversion();
 }

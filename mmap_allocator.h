@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <vector>
 
 #define ALIGN_TO_PAGE(x) ((x) & ~(getpagesize() - 1))
 #define UPPER_ALIGN_TO_PAGE(x) ALIGN_TO_PAGE((x)+(getpagesize()-1))
@@ -105,6 +106,17 @@ public:
 			memory_area(NULL),
 			size_mapped(0)
 		{ }
+
+		mmap_allocator(const std::allocator<T> &a) throw():
+			std::allocator<T>(a),
+			filename(""),
+			offset(0),
+			access_mode(DEFAULT_STL_ALLOCATOR),
+			fd(-1),
+			memory_area(NULL),
+			size_mapped(0)
+		{ }
+
 		mmap_allocator(const mmap_allocator &a) throw():
 			std::allocator<T>(a),
 			filename(a.filename),
@@ -149,7 +161,7 @@ private:
 			case READ_ONLY: mode = O_RDONLY; prot = PROT_READ; mmap_mode = MAP_SHARED; break;
 			case READ_WRITE_SHARED: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_SHARED; break;
 			case READ_WRITE_PRIVATE: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_PRIVATE; break;
-			case DEFAULT_STL_ALLOCATOR: throw mmap_allocator_exception("Internal error"); break;
+			default: throw mmap_allocator_exception("Internal error"); break;
 			}
 
 			fd = open(filename.c_str(), mode);
@@ -174,6 +186,17 @@ private:
 			}
 		}
 	};
+}
+
+template <typename T> std::vector<T> to_std_vector(const std::vector <T, mmap_allocator_namespace::mmap_allocator<T> > &v)
+{
+	return std::vector<T, std::allocator<T> >(v.begin(), v.end());
+}
+
+template <typename T>
+std::vector<T, mmap_allocator_namespace::mmap_allocator<T> > to_mmap_vector(std::vector<T, std::allocator<T> > &v)
+{
+	return std::vector<T, mmap_allocator_namespace::mmap_allocator<T> >(v.begin(), v.end());
 }
 
 #endif /* _MMAP_ALLOCATOR_H */
