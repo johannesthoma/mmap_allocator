@@ -17,6 +17,8 @@
 
 namespace mmap_allocator_namespace
 {
+	typedef off_t offset_type;
+
 	enum access_mode {
 		DEFAULT_STL_ALLOCATOR, /* Default STL allocator (malloc based). Reason is to have containers that do both and are compatible */
 		READ_ONLY,  /* Readonly modus. Segfaults when vector content is written to */
@@ -126,7 +128,7 @@ public:
 			memory_area(a.memory_area),
 			size_mapped(a.size_mapped)
 		{ }
-		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, off_t offset_param = 0) throw():
+		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, offset_type offset_param = 0) throw():
 			std::allocator<T>(),
 			filename(filename_param),
 			offset(offset_param),
@@ -141,7 +143,7 @@ public:
 
 private:
 		std::string filename;
-		off_t offset;
+		offset_type offset;
 		enum access_mode access_mode;
 		int fd;
 		void *memory_area;
