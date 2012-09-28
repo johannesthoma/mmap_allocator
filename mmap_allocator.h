@@ -15,10 +15,10 @@
 #define UPPER_ALIGN_TO_PAGE(x) ALIGN_TO_PAGE((x)+(getpagesize()-1))
 #define OFFSET_INTO_PAGE(x) ((x) & (getpagesize() - 1))
 
+// #define MMAP_ALLOCATOR_DEBUG 1
+
 namespace mmap_allocator_namespace
 {
-	typedef off_t offset_type;
-
 	enum access_mode {
 		DEFAULT_STL_ALLOCATOR, /* Default STL allocator (malloc based). Reason is to have containers that do both and are compatible */
 		READ_ONLY,  /* Readonly modus. Segfaults when vector content is written to */
@@ -59,7 +59,8 @@ private:
 	class mmap_allocator: public std::allocator<T>
 	{
 public:
-		typedef size_t size_type; // TODO: use the inherited types
+		typedef size_t size_type;
+		typedef off_t offset_type;
 		typedef T* pointer;
 		typedef const T* const_pointer;
 
@@ -168,10 +169,16 @@ private:
 
 			fd = open(filename.c_str(), mode);
 			if (fd < 0) {
+#ifdef MMAP_ALLOCATOR_DEBUG
+				perror("open");
+#endif
 				throw mmap_allocator_exception("Error opening file");
 			}
 			memory_area = mmap(NULL, UPPER_ALIGN_TO_PAGE(length), prot, mmap_mode, fd, ALIGN_TO_PAGE(offset));
 			if (memory_area == MAP_FAILED) {
+#ifdef MMAP_ALLOCATOR_DEBUG
+				perror("mmap");
+#endif
 				throw mmap_allocator_exception("Error in mmap");
 			}
 			size_mapped = length;
@@ -181,9 +188,15 @@ private:
 		{
 			munmap(memory_area, size_mapped);
 			if (munmap(memory_area, size_mapped) < 0) {
+#ifdef MMAP_ALLOCATOR_DEBUG
+				perror("munmap");
+#endif
 				throw mmap_allocator_exception("Error in munmap");
 			}
 			if (close(fd)) {
+#ifdef MMAP_ALLOCATOR_DEBUG
+				perror("close");
+#endif
 				throw mmap_allocator_exception("Error in close");
 			}
 		}
