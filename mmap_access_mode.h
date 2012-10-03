@@ -5,6 +5,8 @@
 #define UPPER_ALIGN_TO_PAGE(x) ALIGN_TO_PAGE((x)+(getpagesize()-1))
 #define OFFSET_INTO_PAGE(x) ((x) & (getpagesize() - 1))
 
+#define MMAP_ALLOCATOR_DEBUG 1
+
 namespace mmap_allocator_namespace
 {
 	enum access_mode {

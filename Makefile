@@ -9,4 +9,4 @@ test_allocator: mmap_allocator.h mmap_file_pool.o test_allocator.o
 	g++ mmap_file_pool.o test_allocator.o -o test_allocator
 
 clean:
-	rm -f test_allocator testfile
+	rm -f test_allocator testfile *.o

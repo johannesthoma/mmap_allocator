@@ -8,8 +8,6 @@
 #include "mmap_access_mode.h"
 #include "mmap_file_pool.h"
 
-// #define MMAP_ALLOCATOR_DEBUG 1
-
 namespace mmap_allocator_namespace
 {
 	template <typename T> 
@@ -36,7 +34,7 @@ public:
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
 			} else {
-				memory_area = the_pool.mmap_file(filename, access_mode, n*sizeof(T), offset);
+				memory_area = the_pool.mmap_file(filename, access_mode, offset, n*sizeof(T));
 				if (memory_area == NULL) {
 					throw(mmap_allocator_exception("Couldn't mmap file, mmap_file returned NULL"));
 				}
