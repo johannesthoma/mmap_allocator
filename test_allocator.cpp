@@ -168,6 +168,7 @@ void test_mmap(void)
 	vector<int, mmap_allocator<int> > int_vec_big = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0));
 	int_vec_big.reserve(1024*1024);
 	for (i=0;i<1024*1024;i++) {
+if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_big[i]); }
 		assert(int_vec_big[i] == i);
 	}
 	test_test_file(1024*1024, false);
