@@ -57,30 +57,39 @@ namespace mmap_allocator_namespace {
 			
 	}
 	
-	void mmapped_file::open_and_mmap_file(std::string filename, enum access_mode access_mode, off_t offset, size_t length, bool map_whole_file)
+	void mmapped_file::open_and_mmap_file(std::string filename, enum access_mode access_mode, off_t offset, size_t length, bool map_whole_file, bool allow_remap)
 	{
 		if (filename.c_str()[0] == '\0') {
 			throw mmap_allocator_exception("mmap_allocator not correctly initialized: filename is empty.");
 		}
 		int mode;
 		int prot;
-		int mmap_mode;
+		int mmap_mode = 0;
 		off_t offset_to_map;
 		size_t length_to_map;
+		void *address_to_map = NULL;
 
+		if (memory_area != NULL) {
+			address_to_map = memory_area;
+			if (!allow_remap) {
+				mmap_mode = MAP_FIXED;
+			}
+		}
 		switch (access_mode) {
-		case READ_ONLY: mode = O_RDONLY; prot = PROT_READ; mmap_mode = MAP_SHARED; break;
-		case READ_WRITE_SHARED: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_SHARED; break;
-		case READ_WRITE_PRIVATE: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode = MAP_PRIVATE; break;
+		case READ_ONLY: mode = O_RDONLY; prot = PROT_READ; mmap_mode |= MAP_SHARED; break;
+		case READ_WRITE_SHARED: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode |= MAP_SHARED; break;
+		case READ_WRITE_PRIVATE: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode |= MAP_PRIVATE; break;
 		default: throw mmap_allocator_exception("Internal error"); break;
 		}
 
-		fd = open(filename.c_str(), mode);
-		if (fd < 0) {
+		if (fd == -1) {
+			fd = open(filename.c_str(), mode);
+			if (fd < 0) {
 #ifdef MMAP_ALLOCATOR_DEBUG
-			perror("open");
+				perror("open");
 #endif
-			throw mmap_allocator_exception("Error opening file");
+				throw mmap_allocator_exception("Error opening file");
+			}
 		}
 		if (map_whole_file) {
 			offset_to_map = 0;
@@ -89,8 +98,21 @@ namespace mmap_allocator_namespace {
 			offset_to_map = ALIGN_TO_PAGE(offset);
 			length_to_map = UPPER_ALIGN_TO_PAGE(length);
 		}
+
+		if (offset_to_map == offset_mapped && length_to_map == size_mapped) {
+			return;
+		}
 		
-		memory_area = mmap(NULL, length_to_map, prot, mmap_mode, fd, offset_to_map);
+		if (memory_area != NULL) {
+			if (munmap(memory_area, size_mapped) < 0) {
+#ifdef MMAP_ALLOCATOR_DEBUG
+				perror("munmap");
+#endif
+				throw mmap_allocator_exception("Error in munmap");
+			}
+		}
+
+		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
 		if (memory_area == MAP_FAILED) {
 #ifdef MMAP_ALLOCATOR_DEBUG
 			perror("mmap");
@@ -117,7 +139,7 @@ namespace mmap_allocator_namespace {
 		}
 	}
 
-	void *mmap_file_pool::mmap_file(std::string fname, enum access_mode access_mode, off_t offset, size_t length, bool map_whole_file)
+	void *mmap_file_pool::mmap_file(std::string fname, enum access_mode access_mode, off_t offset, size_t length, bool map_whole_file, bool allow_remap)
 	{
 		mmap_file_identifier the_identifier(fname, access_mode);
 		mmapped_file_map_t::iterator it;
@@ -126,8 +148,9 @@ namespace mmap_allocator_namespace {
 		it = the_map.find(the_identifier);
 		if (it != the_map.end()) {
 			the_file = it->second;
-		} else {
-			the_file.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file);
+		}
+		the_file.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
+		if (it == the_map.end()) {
 			the_map.insert(mmapped_file_pair_t(the_identifier, the_file));
 		}
 		return the_file.get_memory_area();

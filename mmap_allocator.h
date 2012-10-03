@@ -29,12 +29,12 @@ public:
 		{
 			void *memory_area;
 #ifdef MMAP_ALLOCATOR_DEBUG
-			fprintf(stderr, "Alloc %d bytes.\n", n);
+			fprintf(stderr, "Alloc %d bytes.\n", n*sizeof(T));
 #endif
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
 			} else {
-				memory_area = the_pool.mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file);
+				memory_area = the_pool.mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file, allow_remap);
 				if (memory_area == NULL) {
 					throw(mmap_allocator_exception("Couldn't mmap file, mmap_file returned NULL"));
 				}
@@ -64,7 +64,8 @@ public:
 			filename(""),
 			offset(0),
 			access_mode(DEFAULT_STL_ALLOCATOR),
-			map_whole_file(false)
+			map_whole_file(false),
+			allow_remap(false)
 		{ }
 
 		mmap_allocator(const std::allocator<T> &a) throw():
@@ -72,7 +73,8 @@ public:
 			filename(""),
 			offset(0),
 			access_mode(DEFAULT_STL_ALLOCATOR),
-			map_whole_file(false)
+			map_whole_file(false),
+			allow_remap(false)
 		{ }
 
 		mmap_allocator(const mmap_allocator &a) throw():
@@ -80,14 +82,16 @@ public:
 			filename(a.filename),
 			offset(a.offset),
 			access_mode(a.access_mode),
-			map_whole_file(a.map_whole_file)
+			map_whole_file(a.map_whole_file),
+			allow_remap(a.allow_remap)
 		{ }
-		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, offset_type offset_param = 0, bool map_whole_file_param = false) throw():
+		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, offset_type offset_param = 0, bool map_whole_file_param = false, bool allow_remap_param = false) throw():
 			std::allocator<T>(),
 			filename(filename_param),
 			offset(offset_param),
 			access_mode(access_mode_param),
-			map_whole_file(map_whole_file_param)
+			map_whole_file(map_whole_file_param),
+			allow_remap(allow_remap_param)
 		{
 		}
 			
@@ -98,6 +102,7 @@ private:
 		offset_type offset;
 		enum access_mode access_mode;
 		bool map_whole_file;
+		bool allow_remap;
 	};
 }
 
