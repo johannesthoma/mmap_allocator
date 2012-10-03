@@ -27,8 +27,9 @@ public:
 			fd(-1),
 			memory_area(NULL),
 			size_mapped(0),
-			offset_mapped(0)
-		{ }
+			offset_mapped(0),
+			reference_count(0)
+		{ fprintf(stderr, "mmaped_file constructor\n"); }
 
 		void *get_memory_area(void)
 		{
@@ -36,13 +37,14 @@ public:
 		}
 
 		void open_and_mmap_file(std::string fname, enum access_mode access_mode, off_t offset, size_t length, bool map_whole_file, bool allow_remap);
-		void munmap_and_close_file(void);
+		bool munmap_and_close_file(void);
 
 private:
                 int fd;
                 void *memory_area;
                 size_t size_mapped;
                 off_t offset_mapped;
+		int reference_count;
 	};
 
 	typedef std::map<mmap_file_identifier, mmapped_file> mmapped_file_map_t;
