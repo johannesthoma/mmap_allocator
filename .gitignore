@@ -1,2 +1,4 @@
 testfile
 test_allocator
+*.o
+.*.swp
