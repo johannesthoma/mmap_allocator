@@ -114,7 +114,9 @@ fprintf(stderr, "%p: open: reference_count is %d\n", this, reference_count);
 			}
 		}
 
+fprintf(stderr, "memory_area before = %p\n", memory_area);
 		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
+fprintf(stderr, "memory_area after = %p\n", memory_area);
 		if (memory_area == MAP_FAILED) {
 #ifdef MMAP_ALLOCATOR_DEBUG
 			perror("mmap");

@@ -1,6 +1,8 @@
 #ifndef _MMAP_ACCESS_MODE
 #define _MMAP_ACCESS_MODE
 
+#include <stdio.h>
+
 #define ALIGN_TO_PAGE(x) ((x) & ~(getpagesize() - 1))
 #define UPPER_ALIGN_TO_PAGE(x) ALIGN_TO_PAGE((x)+(getpagesize()-1))
 #define OFFSET_INTO_PAGE(x) ((x) & (getpagesize() - 1))
