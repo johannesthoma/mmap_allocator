@@ -71,9 +71,11 @@ namespace mmap_allocator_namespace {
 
 		if (memory_area != NULL) {
 			address_to_map = memory_area;
+#if (!defined MAP_FIXED_BROKEN)
 			if (!allow_remap) {
 				mmap_mode = MAP_FIXED; /* Causes problems on some platforms */
 			}
+#endif
 		}
 		switch (access_mode) {
 		case READ_ONLY: mode = O_RDONLY; prot = PROT_READ; mmap_mode |= MAP_SHARED; break;
@@ -114,6 +116,18 @@ namespace mmap_allocator_namespace {
 		}
 
 		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
+#ifdef MMAP_MAP_FIXED_BROKEN
+		if (address_to_map != NULL && !allow_remap && memory_area != MAP_FAILED && memory_area != address_to_map) {
+			if (munmap(memory_area, length_to_map) < 0) {
+#ifdef MMAP_ALLOCATOR_DEBUG
+				perror("munmap");
+#endif
+				throw mmap_allocator_exception("Error in munmap");
+			}
+			throw mmap_allocator_exception("Request to remap area but allow_remap is not given");
+		}
+#endif
+
 		if (memory_area == MAP_FAILED) {
 #ifdef MMAP_ALLOCATOR_DEBUG
 			perror("mmap");
