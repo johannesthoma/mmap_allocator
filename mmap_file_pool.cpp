@@ -72,7 +72,7 @@ namespace mmap_allocator_namespace {
 		if (memory_area != NULL) {
 			address_to_map = memory_area;
 			if (!allow_remap) {
-				mmap_mode = MAP_FIXED;
+				mmap_mode = MAP_FIXED; /* Causes problems on some platforms */
 			}
 		}
 		switch (access_mode) {
