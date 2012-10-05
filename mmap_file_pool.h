@@ -36,7 +36,7 @@ public:
 			return memory_area;
 		}
 
-		void open_and_mmap_file(std::string fname, enum access_mode access_mode, off_t offset, size_t length, bool map_whole_file, bool allow_remap);
+		void* open_and_mmap_file(std::string fname, enum access_mode access_mode, off_t offset, size_t length, bool map_whole_file, bool allow_remap);
 		bool munmap_and_close_file(void);
 
 private:

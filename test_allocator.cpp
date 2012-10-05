@@ -152,6 +152,7 @@ void test_mmap(void)
 		assert((*int_vec_pointer)[i] == i);
 	}
 	test_test_file(1024, false);
+	delete int_vec_pointer;
 
 	fprintf(stderr, "Testing int_vec_initialized_private\n");
 	vector<int, mmap_allocator<int> > int_vec_initialized_private = vector<int, mmap_allocator<int> >(1024, 0, mmap_allocator<int>("testfile", READ_WRITE_PRIVATE, 0));
@@ -223,6 +224,23 @@ void test_mmap_file_pool(void)
 	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 1024);
 }
 
+void test_mapping_smaller_area(void)
+{
+	generate_test_file(2048);
+
+	int *f = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 8192, false, false);
+	int *first_page = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 4096, false, false);
+	int *second_page = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 4096, 4096, false, false);
+
+	assert(f == first_page);
+	assert(f+1024 == second_page);
+
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 8192);
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 4096);
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 4096, 4096);
+}
+
+
 int main(int argc, char ** argv)
 {
 	test_page_align_macros();
@@ -231,4 +249,5 @@ int main(int argc, char ** argv)
 	test_mmap_file_pool();
 	test_mmap();
 	test_conversion();
+	test_mapping_smaller_area();
 }
