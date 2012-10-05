@@ -101,7 +101,6 @@ namespace mmap_allocator_namespace {
 
 		if (offset_to_map == offset_mapped && length_to_map == size_mapped) {
 			reference_count++;
-fprintf(stderr, "%p: open: reference_count is %d\n", this, reference_count);
 			return;
 		}
 		
@@ -114,9 +113,7 @@ fprintf(stderr, "%p: open: reference_count is %d\n", this, reference_count);
 			}
 		}
 
-fprintf(stderr, "memory_area before = %p\n", memory_area);
 		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
-fprintf(stderr, "memory_area after = %p\n", memory_area);
 		if (memory_area == MAP_FAILED) {
 #ifdef MMAP_ALLOCATOR_DEBUG
 			perror("mmap");
@@ -126,13 +123,11 @@ fprintf(stderr, "memory_area after = %p\n", memory_area);
 		offset_mapped = offset_to_map;
 		size_mapped = length_to_map;
 		reference_count++;
-fprintf(stderr, "%p: open 2: reference_count is %d\n", this, reference_count);
 	}
 
 	bool mmapped_file::munmap_and_close_file(void)
 	{
 		reference_count--;
-fprintf(stderr, "reference_count is %d\n", reference_count);
 		if (reference_count > 0) {
 			return false;
 		}
@@ -155,14 +150,11 @@ fprintf(stderr, "reference_count is %d\n", reference_count);
 	{
 		mmap_file_identifier the_identifier(fname, access_mode);
 		mmapped_file_map_t::iterator it;
-fprintf(stderr, "ZAK\n");
-fprintf(stderr, "KARIN\n");
 
 		it = the_map.find(the_identifier);
 		if (it != the_map.end()) {
 			it->second.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
 			return it->second.get_memory_area();
-fprintf(stderr, "mmap: &it->second = %p\n", &it->second);
 		} else {
 			mmapped_file the_file;
 
@@ -182,7 +174,6 @@ fprintf(stderr, "mmap: &it->second = %p\n", &it->second);
 			if (it->second.munmap_and_close_file()) {
 				the_map.erase(it);
 			}
-fprintf(stderr, "munmap: &it->second = %p\n", &it->second);
 		} else {
 			throw mmap_allocator_exception("File not found in pool");
 		}

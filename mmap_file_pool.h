@@ -29,7 +29,7 @@ public:
 			size_mapped(0),
 			offset_mapped(0),
 			reference_count(0)
-		{ fprintf(stderr, "mmaped_file constructor\n"); }
+		{ }
 
 		void *get_memory_area(void)
 		{
