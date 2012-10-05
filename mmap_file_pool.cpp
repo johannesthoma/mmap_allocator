@@ -101,6 +101,7 @@ namespace mmap_allocator_namespace {
 
 		if (offset_to_map == offset_mapped && length_to_map == size_mapped) {
 			reference_count++;
+fprintf(stderr, "%p: open: reference_count is %d\n", this, reference_count);
 			return;
 		}
 		
@@ -123,12 +124,14 @@ namespace mmap_allocator_namespace {
 		offset_mapped = offset_to_map;
 		size_mapped = length_to_map;
 		reference_count++;
+fprintf(stderr, "%p: open 2: reference_count is %d\n", this, reference_count);
 	}
 
 	bool mmapped_file::munmap_and_close_file(void)
 	{
 		reference_count--;
 		if (reference_count > 0) {
+fprintf(stderr, "reference_count is %d\n", reference_count);
 			return false;
 		}
 		if (munmap(memory_area, size_mapped) < 0) {
@@ -150,27 +153,26 @@ namespace mmap_allocator_namespace {
 	{
 		mmap_file_identifier the_identifier(fname, access_mode);
 		mmapped_file_map_t::iterator it;
-		mmapped_file *the_file;
+fprintf(stderr, "ZAK\n");
+		mmapped_file the_file;
+fprintf(stderr, "KARIN\n");
 
 		it = the_map.find(the_identifier);
 		if (it != the_map.end()) {
 			the_file = it->second;
-		} else {
-			the_file = new mmapped_file();
-fprintf(stderr, "new %p\n", the_file);
 		}
-		the_file->open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
+		the_file.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
 		if (it == the_map.end()) {
 			the_map.insert(mmapped_file_pair_t(the_identifier, the_file));
 		}
-		return the_file->get_memory_area();
+		return the_file.get_memory_area();
 	}
 
 	void mmap_file_pool::munmap_file(std::string fname, enum access_mode access_mode, off_t offset, size_t length)
 	{
 		mmap_file_identifier the_identifier(fname, access_mode);
 		mmapped_file_map_t::iterator it;
-		mmapped_file *the_file;
+		mmapped_file the_file;
 
 		it = the_map.find(the_identifier);
 		if (it != the_map.end()) {
@@ -179,12 +181,10 @@ fprintf(stderr, "new %p\n", the_file);
 			throw mmap_allocator_exception("File not found in pool");
 		}
 
-		if (the_file->munmap_and_close_file()) {
-fprintf(stderr, "delete %p\n", the_file);
-			delete the_file;
+		if (the_file.munmap_and_close_file()) {
 			the_map.erase(it);
 		}
 	}
 
-	mmap_file_pool the_pool; /* TODO: this is not thread safe */
+	mmap_file_pool the_pool; /* TODO: move to app object */
 }

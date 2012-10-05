@@ -29,7 +29,7 @@ public:
 			size_mapped(0),
 			offset_mapped(0),
 			reference_count(0)
-		{ }
+		{ fprintf(stderr, "mmaped_file constructor\n"); }
 
 		void *get_memory_area(void)
 		{
@@ -47,8 +47,8 @@ private:
 		int reference_count;
 	};
 
-	typedef std::map<mmap_file_identifier, mmapped_file*> mmapped_file_map_t;
-	typedef std::pair<mmap_file_identifier, mmapped_file*> mmapped_file_pair_t;
+	typedef std::map<mmap_file_identifier, mmapped_file> mmapped_file_map_t;
+	typedef std::pair<mmap_file_identifier, mmapped_file> mmapped_file_pair_t;
 
 /* Singleton */
 	class mmap_file_pool {
