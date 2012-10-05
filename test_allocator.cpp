@@ -204,12 +204,24 @@ void test_conversion(void)
 }
 
 
+void test_mmap_file_pool(void)
+{
+	generate_test_file(1024);
+	int *f = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 1024, false, false);
+	int i;
+
+	for (i=0;i<1024;i++) {
+		assert(f[i] == i);
+	}
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 1024);
+}
 
 int main(int argc, char ** argv)
 {
 	test_page_align_macros();
 	test_throw_catch();
 	test_exceptions();
-	test_mmap();
+//	test_mmap();
+	test_mmap_file_pool();
 	test_conversion();
 }
