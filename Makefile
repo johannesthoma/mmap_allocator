@@ -3,6 +3,10 @@ CFLAGS=-g -Wall
 
 all: test mmap_file_pool.o
 
+debug: CPPFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
+debug: CFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
+debug: clean all
+
 test: test_allocator test_mmap_fixed
 	@echo "Running mmap allocator regression test suite."
 	./test_allocator
