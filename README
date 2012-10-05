@@ -91,10 +91,44 @@ READ_WRITE_SHARED: Read/write access, writes are propagated to disk
 The offset parameter must be page aligned (PAGE_SIZE, usually 4K or 8K), 
 else mmap will return an error.
 
-Version
--------
+Mmap file pool
+--------------
 
-I would say this is 0.1, first release.
+Beginning with 0.3, mmap allocator uses a pool of mmaped files. If you
+map the same file with the same access mode again it gets the same
+(virtual and physical) memory assigned as it was mapped previously.
+We needed this because our program (that uses mmap_allocator) mmaps
+a file in many small chunks (10K junks) which eventually lead to a
+Out of filedescriptors error (when mapping a 100Meg file in 10K junks).
+
+Following parameters have been added to the mmap_allocator constructor:
+
+	.) map_whole_file: Set this to true when you know that you need
+	the whole (or most parts of the) file later and only want to 
+	request a part of it now.
+
+	.) allow_remap: Set this to true if you are allocating a vector
+	from a mmapped file and you know that you do not need previous
+	mappings any more. Normally this is used when the file size 
+	changes (in particular when it grows). Be aware, however that
+	this could invalidate all allocations for that file that have
+	been made before.
+
+MAP_FIXED problem
+-----------------
+
+A known bug on CentOS 5 is that usage of MAP_FIXED can cause a segfault
+in the dynamic loader library. There's a little test program that
+can be used to see if that is the case on your platform. If it 
+Segfaults then uncomment the MMAP_MAP_FIXED_BROKEN line in 
+mmap_access_mode.h.
+
+Version history
+---------------
+
+0.1.0, first release.
+0.2.0, some interface changes.
+0.3.0, mmaped file pool.
 
 Author
 ------
