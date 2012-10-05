@@ -7,11 +7,9 @@ debug: CPPFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
 debug: CFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
 debug: clean all
 
-test: test_allocator test_mmap_fixed
+test: test_allocator
 	@echo "Running mmap allocator regression test suite."
 	./test_allocator
-	@echo "Running MAP_FIXED test, if this Segfaults then your glibc/kernel is probably broken"
-	./test_mmap_fixed
 
 test_allocator: mmap_allocator.h mmap_file_pool.o test_allocator.o
 	g++ mmap_file_pool.o test_allocator.o -o test_allocator

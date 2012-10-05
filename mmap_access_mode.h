@@ -8,7 +8,6 @@
 #define OFFSET_INTO_PAGE(x) ((x) & (getpagesize() - 1))
 
 // #define MMAP_ALLOCATOR_DEBUG 1
-// #define MMAP_MAP_FIXED_BROKEN 1
 
 namespace mmap_allocator_namespace
 {
