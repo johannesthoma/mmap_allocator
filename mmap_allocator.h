@@ -50,7 +50,7 @@ public:
 		void deallocate(pointer p, size_type n)
 		{
 #ifdef MMAP_ALLOCATOR_DEBUG
-			fprintf(stderr, "Dealloc %d bytes (%p).\n", n, p);
+			fprintf(stderr, "Dealloc %d bytes (%p).\n", n*sizeof(T), p);
 #endif
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				std::allocator<T>::deallocate(p, n);

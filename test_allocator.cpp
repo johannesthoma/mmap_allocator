@@ -106,6 +106,7 @@ void test_mmap(void)
 {
 	int i;
 
+#if 0
 	fprintf(stderr, "Testing int_vec_default\n");
 	generate_test_file(1024);
 	vector<int, mmap_allocator<int> > int_vec_default = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", DEFAULT_STL_ALLOCATOR, 0));
@@ -124,6 +125,8 @@ void test_mmap(void)
 		assert(int_vec_rw_private[i] == i);
 	}
 	test_test_file(1024, false);
+#endif
+
 
 	fprintf(stderr, "Testing int_vec_ro\n");
 	vector<int, mmap_allocator<int> > int_vec_ro = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0));
@@ -133,6 +136,7 @@ void test_mmap(void)
 	}
 	test_test_file(1024, false);
 
+#if 0
 	fprintf(stderr, "Testing int_vec_shifted\n");
 	vector<int, mmap_allocator<int> > int_vec_shifted = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, sizeof(int)));
 	int_vec_shifted.reserve(1024-1);
@@ -162,6 +166,7 @@ void test_mmap(void)
 		assert(int_vec_initialized_shared[i] == 0);
 	}
 	test_test_file(1024, true);
+#endif 
 
 	fprintf(stderr, "Testing int_vec_big\n");
 	generate_test_file(1024*1024);
@@ -173,6 +178,7 @@ if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_b
 	}
 	test_test_file(1024*1024, false);
 
+#if 0
 	fprintf(stderr, "Testing int_vec_shifted_big\n");
 	generate_test_file(1024*1024);
 	vector<int, mmap_allocator<int> > int_vec_shifted_big = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, sizeof(i)));
@@ -190,12 +196,12 @@ if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_b
 		assert(int_vec_big_minus_one[i] == i);
 	}
 	test_test_file(1024*1024-1, false);
-
+#endif 
 }
 
 void test_conversion(void)
 {
-	vector<int, mmap_allocator<int> > mmap_vector = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", DEFAULT_STL_ALLOCATOR, 0));
+	vector<int, mmap_allocator<int> > mmap_vector = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", DEFAULT_STL_ALLOCATOR, 1000));
 
 	vector<int> std_vector;
 
@@ -208,11 +214,15 @@ void test_mmap_file_pool(void)
 {
 	generate_test_file(1024);
 	int *f = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 1024, false, false);
+	int *f2 = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 1024, false, false);
 	int i;
+
+	assert(f == f2);
 
 	for (i=0;i<1024;i++) {
 		assert(f[i] == i);
 	}
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 1024);
 	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 1024);
 }
 
@@ -221,7 +231,7 @@ int main(int argc, char ** argv)
 	test_page_align_macros();
 	test_throw_catch();
 	test_exceptions();
-//	test_mmap();
 	test_mmap_file_pool();
+	test_mmap();
 	test_conversion();
 }
