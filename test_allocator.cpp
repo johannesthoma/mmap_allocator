@@ -226,9 +226,28 @@ void test_mmap_file_pool(void)
 
 void test_mapping_smaller_area(void)
 {
+	fprintf(stderr, "Testing mapping of areas that fit in already mapped areas\n");
 	generate_test_file(2048);
 
 	int *f = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 8192, false, false);
+	int *first_page = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 4096, false, false);
+	int *second_page = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 4096, 4096, false, false);
+
+	assert(f == first_page);
+	assert(f+1024 == second_page);
+
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 8192);
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 0, 4096);
+	the_pool.munmap_file(string("testfile"), READ_ONLY, 4096, 4096);
+}
+
+
+void test_mapping_smaller_area_whole_file_flag(void)
+{
+	fprintf(stderr, "Testing whole file flag\n");
+	generate_test_file(2048);
+
+	int *f = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 1, true, false);
 	int *first_page = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 0, 4096, false, false);
 	int *second_page = (int*)the_pool.mmap_file(string("testfile"), READ_ONLY, 4096, 4096, false, false);
 
@@ -250,4 +269,5 @@ int main(int argc, char ** argv)
 	test_mmap();
 	test_conversion();
 	test_mapping_smaller_area();
+	test_mapping_smaller_area_whole_file_flag();
 }

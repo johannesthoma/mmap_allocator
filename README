@@ -129,6 +129,7 @@ Version history
 0.1.0, first release.
 0.2.0, some interface changes.
 0.3.0, mmaped file pool.
+0.3.1, do not remap files when area fits in already mapped file.
 
 Author
 ------

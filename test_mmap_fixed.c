@@ -29,7 +29,11 @@ void test_mmap_directly()
 	area_short = mmap(0, 4096, PROT_READ, MAP_PRIVATE, fd, 0);
 	assert(area_short != MAP_FAILED);
 	
+	close(fd);
 	generate_test_file(1024*1024);
+	fd = open("testfile", O_RDONLY);
+	assert(fd>=0);
+
 	area_long = mmap(area_short, 4096*1024, PROT_READ, MAP_PRIVATE | MAP_FIXED, fd, 0);
 	assert(area_long != MAP_FAILED);
 	assert(area_short == area_long);
