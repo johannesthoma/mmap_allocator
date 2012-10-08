@@ -62,6 +62,7 @@ then be accessed the usual way (my_vector[i]). Update: Starting with
 version 0.4 this also sets the size of the vector correctly.
 
 Do not forget to:
+
 	using namespace std;
 	using namespace mmap_allocator_namespace;
 
@@ -82,11 +83,11 @@ Mode
 As part of the construction of the mmap_allocator object a mode field can be 
 specified. It does the following:
 
-DEFAULT_STL_ALLOCATOR: Default STL allocator (malloc based). Reason 
+* DEFAULT_STL_ALLOCATOR: Default STL allocator (malloc based). Reason 
 	is to have containers that do both and are compatible
-READ_ONLY: Readonly modus. Segfaults when vector content is written to.
-READ_WRITE_PRIVATE: Read/write access, writes are not propagated to disk.
-READ_WRITE_SHARED: Read/write access, writes are propagated to disk 
+* READ_ONLY: Readonly modus. Segfaults when vector content is written to.
+* READ_WRITE_PRIVATE: Read/write access, writes are not propagated to disk.
+* READ_WRITE_SHARED: Read/write access, writes are propagated to disk 
 	(file is modified)
 
 The offset parameter must be page aligned (PAGE_SIZE, usually 4K or 8K), 
@@ -104,11 +105,11 @@ Out of filedescriptors error (when mapping a 100Meg file in 10K junks).
 
 Following parameters have been added to the mmap_allocator constructor:
 
-.) map_whole_file: Set this to true when you know that you need
+* map_whole_file: Set this to true when you know that you need
 the whole (or most parts of the) file later and only want to 
 request a part of it now.
 
-.) allow_remap: Set this to true if you are allocating a vector
+* allow_remap: Set this to true if you are allocating a vector
 from a mmapped file and you know that you do not need previous
 mappings any more. Normally this is used when the file size 
 changes (in particular when it grows). Be aware, however that
