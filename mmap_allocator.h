@@ -27,23 +27,22 @@ public:
 
 		pointer allocate(size_type n, const void *hint=0)
 		{
-			void *memory_area;
+			void *the_pointer;
 #ifdef MMAP_ALLOCATOR_DEBUG
 			fprintf(stderr, "Alloc %d bytes.\n", n*sizeof(T));
 #endif
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
 			} else {
-				memory_area = the_pool.mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file, allow_remap);
-				if (memory_area == NULL) {
+				the_pointer = the_pool.mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file, allow_remap);
+				if (the_pointer == NULL) {
 					throw(mmap_allocator_exception("Couldn't mmap file, mmap_file returned NULL"));
 				}
-				pointer p = (pointer)((char*)memory_area+OFFSET_INTO_PAGE(offset));
 #ifdef MMAP_ALLOCATOR_DEBUG
-				fprintf(stderr, "pointer = %p\n", p);
+				fprintf(stderr, "pointer = %p\n", the_pointer);
 #endif
 				
-				return p;
+				return (pointer)the_pointer;
 			}
 		}
 

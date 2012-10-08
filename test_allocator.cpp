@@ -260,6 +260,38 @@ void test_mapping_smaller_area_whole_file_flag(void)
 }
 
 
+void test_mapping_smaller_area_whole_file_flag_allocator(void)
+{
+	int i;
+
+	fprintf(stderr, "Testing whole file flag via allocator\n");
+	generate_test_file(2048);
+
+	fprintf(stderr, "Testing int_vec_ro\n");
+	vector<int, mmap_allocator<int> > int_vec_ro = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, true, false));
+	int_vec_ro.reserve(1024);
+	for (i=0;i<1024;i++) {
+		assert(int_vec_ro[i] == i);
+	}
+
+	vector<int, mmap_allocator<int> > int_vec_ro_second_page = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 4096, true, false));
+	int_vec_ro_second_page.reserve(1024);
+	for (i=0;i<1024;i++) {
+		assert(int_vec_ro_second_page[i] == i+1024);
+	}
+}
+
+
+#if 0
+void test_fvpaths(void)
+{
+	vector<double, mmap_allocator<double> > vec_double = vector<double, mmap_allocator<double> >(mmap_allocator<double>("fvpaths", READ_WRITE_PRIVATE, 20672000, true, false));
+	vec_double.reserve(1);
+	fprintf(stderr, "vec_double[0] = %f\n", vec_double[0]);
+	fprintf(stderr, "&vec_double[0] = %p\n", &vec_double[0]);
+}
+#endif
+
 int main(int argc, char ** argv)
 {
 	test_page_align_macros();
@@ -270,4 +302,6 @@ int main(int argc, char ** argv)
 	test_conversion();
 	test_mapping_smaller_area();
 	test_mapping_smaller_area_whole_file_flag();
+	test_mapping_smaller_area_whole_file_flag_allocator();
+	test_fvpaths();
 }

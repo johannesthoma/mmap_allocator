@@ -103,12 +103,12 @@ namespace mmap_allocator_namespace {
 
 		if (offset_to_map == offset_mapped && length_to_map == size_mapped) {
 			reference_count++;
-			return memory_area;
+			return ((char*)memory_area)+offset;
 		}
 		if (offset_to_map >= offset_mapped && length_to_map + offset_to_map - offset_mapped <= size_mapped)
 		{
 			reference_count++;
-			return (char *)memory_area + offset_to_map - offset_mapped;
+			return ((char*)memory_area)+offset;
 		}
 		
 		if (memory_area != NULL) {
@@ -141,7 +141,7 @@ namespace mmap_allocator_namespace {
 		size_mapped = length_to_map;
 		reference_count++;
 
-		return memory_area;
+		return ((char*)memory_area)+offset;
 	}
 
 	bool mmapped_file::munmap_and_close_file(void)
