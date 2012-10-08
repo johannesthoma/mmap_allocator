@@ -23,7 +23,7 @@ written as part of a consulting project I did for a big Austrian bank.
 License
 -------
 
-This code (c) Johannes Thoma 2012 and is LGPL. Please write me an email to 
+This code is (c) Johannes Thoma 2012 and is LGPL. Please write me an email to 
 johannes.thoma@gmx.at if you find this useful, or if you find bugs or want 
 to extend the library.
 
@@ -49,16 +49,17 @@ Example
 
 Suppose you have a file with 1024 ints. Then:
 
-	vector<int, mmap_allocator<int> > my_vector = 
+	mmappable_vector<int, mmap_allocator<int> > my_vector = 
 		vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile"));
 
 declares a vector that uses mmap_allocator to mmap the file. By calling:
 
-	my_vector.reserve(1024);
+	my_vector.map_into_memory(1024);
 
 the STL vector class will call allocate which in turn will mmap the file and 
 set the content of the vector to the mmapped area. The file's content can
-then be accessed the usual way (my_vector[i]).
+then be accessed the usual way (my_vector[i]). Update: Starting with
+version 0.4 this also sets the size of the vector correctly.
 
 Do not forget to:
 	using namespace std;
@@ -114,6 +115,16 @@ changes (in particular when it grows). Be aware, however that
 this could invalidate all allocations for that file that have
 been made before.
 
+Mmappable vector class
+----------------------
+
+Beginning with version 0.4, there is a special std::vector subclass 
+for use with mmapped vectors. This was necessary because there is
+no standard way to set the size of an STL vector without initializing
+the content (which is not wanted since the content is coming from the
+mmapped file). From now on, please use the mmapped_vector class for
+using mmap_allocator.
+
 Version history
 ---------------
 
@@ -123,6 +134,7 @@ Version history
 0.3.1, do not remap files when area fits in already mapped file.
 0.3.2, never use MAP_FIXED.
 0.3.3, bugfix in computing pointers.
+0.4.0, mmapped_vector class.
 
 Author
 ------

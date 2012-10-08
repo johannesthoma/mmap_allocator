@@ -107,6 +107,12 @@ private:
 	template <typename T, typename A = mmap_allocator<T> > 
 	class mmappable_vector: public std::vector<T, A> {
 public:
+/* TODO: are these necessary here? */
+		typedef typename std::vector<T, A>::const_iterator const_iterator;
+		typedef typename std::vector<T, A>::iterator iterator;
+		typedef T value_type;
+		typedef A allocator_type;
+
 		mmappable_vector():
 			std::vector<T,A>()
 		{
@@ -130,6 +136,11 @@ public:
 
 		mmappable_vector(int n, T val, A alloc):
 			std::vector<T,A>(n, val, alloc)
+		{
+		}
+
+		mmappable_vector(int n, T val):
+			std::vector<T,A>(n, val)
 		{
 		}
 
