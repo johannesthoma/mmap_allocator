@@ -103,25 +103,16 @@ Out of filedescriptors error (when mapping a 100Meg file in 10K junks).
 
 Following parameters have been added to the mmap_allocator constructor:
 
-	.) map_whole_file: Set this to true when you know that you need
-	the whole (or most parts of the) file later and only want to 
-	request a part of it now.
+.) map_whole_file: Set this to true when you know that you need
+the whole (or most parts of the) file later and only want to 
+request a part of it now.
 
-	.) allow_remap: Set this to true if you are allocating a vector
-	from a mmapped file and you know that you do not need previous
-	mappings any more. Normally this is used when the file size 
-	changes (in particular when it grows). Be aware, however that
-	this could invalidate all allocations for that file that have
-	been made before.
-
-MAP_FIXED problem
------------------
-
-A known bug on CentOS 5 is that usage of MAP_FIXED can cause a segfault
-in the dynamic loader library. There's a little test program that
-can be used to see if that is the case on your platform. If it 
-Segfaults then uncomment the MMAP_MAP_FIXED_BROKEN line in 
-mmap_access_mode.h.
+.) allow_remap: Set this to true if you are allocating a vector
+from a mmapped file and you know that you do not need previous
+mappings any more. Normally this is used when the file size 
+changes (in particular when it grows). Be aware, however that
+this could invalidate all allocations for that file that have
+been made before.
 
 Version history
 ---------------
@@ -131,6 +122,7 @@ Version history
 0.3.0, mmaped file pool.
 0.3.1, do not remap files when area fits in already mapped file.
 0.3.2, never use MAP_FIXED.
+0.3.3, bugfix in computing pointers.
 
 Author
 ------
