@@ -103,6 +103,58 @@ private:
 		bool map_whole_file;
 		bool allow_remap;
 	};
+
+	template <typename T, typename A = mmap_allocator<T> > 
+	class mmappable_vector: public std::vector<T, A> {
+		using std::vector<T,A>::_M_impl;
+
+public:
+		mmappable_vector():
+			std::vector<T,A>()
+		{
+		}
+
+		mmappable_vector(const mmappable_vector<T, A> &other):
+			std::vector<T,A>(other)
+		{
+		}
+
+		explicit mmappable_vector(size_t n):
+			std::vector<T,A>()
+		{
+			map_into_memory(n);
+		}
+
+		explicit mmappable_vector(A alloc):
+			std::vector<T,A>(alloc)
+		{
+		}
+
+		mmappable_vector(int n, T val, A alloc):
+			std::vector<T,A>(n, val, alloc)
+		{
+		}
+
+		void map_into_memory(const size_t n)
+		{
+			std::vector<T,A>::reserve(n);
+#ifdef __GNUC__
+			std::vector<T,A>::_M_impl._M_finish = std::vector<T,A>::_M_impl._M_end_of_storage;
+#else
+#error "Not GNU C++, please either implement me or use GCC"
+#endif		
+		}	
+
+		const T &operator[](size_t n) const
+		{
+			return std::vector<T,A>::operator[](n);
+		}
+
+		T &operator[](size_t n)
+		{
+			return std::vector<T,A>::operator[](n);
+		}
+	};
 }
 
 template <typename T> std::vector<T> to_std_vector(const std::vector <T, mmap_allocator_namespace::mmap_allocator<T> > &v)
