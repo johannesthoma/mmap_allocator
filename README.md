@@ -129,13 +129,13 @@ using mmap_allocator.
 Version history
 ---------------
 
-0.1.0, first release.
-0.2.0, some interface changes.
-0.3.0, mmaped file pool.
-0.3.1, do not remap files when area fits in already mapped file.
-0.3.2, never use MAP_FIXED.
-0.3.3, bugfix in computing pointers.
-0.4.0, mmapped_vector class.
+* 0.1.0, first release.
+* 0.2.0, some interface changes.
+* 0.3.0, mmaped file pool.
+* 0.3.1, do not remap files when area fits in already mapped file.
+* 0.3.2, never use MAP_FIXED.
+* 0.3.3, bugfix in computing pointers.
+* 0.4.0, mmapped_vector class.
 
 Author
 ------
