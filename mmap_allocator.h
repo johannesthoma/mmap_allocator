@@ -106,8 +106,6 @@ private:
 
 	template <typename T, typename A = mmap_allocator<T> > 
 	class mmappable_vector: public std::vector<T, A> {
-		using std::vector<T,A>::_M_impl;
-
 public:
 		mmappable_vector():
 			std::vector<T,A>()
@@ -144,16 +142,6 @@ public:
 #error "Not GNU C++, please either implement me or use GCC"
 #endif		
 		}	
-
-		const T &operator[](size_t n) const
-		{
-			return std::vector<T,A>::operator[](n);
-		}
-
-		T &operator[](size_t n)
-		{
-			return std::vector<T,A>::operator[](n);
-		}
 	};
 }
 
