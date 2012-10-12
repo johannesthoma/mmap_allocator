@@ -60,13 +60,15 @@ void test_throw_catch(void)
 {
 	try {
 		throw mmap_allocator_exception("Test");
+		assert(0);
 	} catch (mmap_allocator_exception e) {
-		fprintf(stderr, "Exception message: %s\n", e.message());
+		fprintf(stderr, "Exception message (expected): %s\n", e.message());
 	}
 	try {
 		do_throw();
+		assert(0);
 	} catch (mmap_allocator_exception e) {
-		fprintf(stderr, "Exception message: %s\n", e.message());
+		fprintf(stderr, "Exception message (expected): %s\n", e.message());
 	}
 }
 
@@ -81,8 +83,9 @@ void test_exceptions(void)
 	try {
 		vector<int, mmap_allocator<int> > int_vec(1024, 0, mmap_allocator<int>("", READ_ONLY));
 			/* Default constructor used, allocate will fail */
+		assert(0);
 	} catch (mmap_allocator_exception e) {
-		fprintf(stderr, "Exception message: %s\n", e.message());
+		fprintf(stderr, "Exception message (expected): %s\n", e.message());
 		exception_thrown = true;
 	}
 	assert(exception_thrown);
@@ -90,8 +93,9 @@ void test_exceptions(void)
 	exception_thrown = false;
 	try {
 		vector<int, mmap_allocator<int> > int_vec_notexsting_file(1024, 0, mmap_allocator<int>("karin", READ_ONLY)); /* no such file or directory */
+		assert(0);
 	} catch (mmap_allocator_exception e) {
-		fprintf(stderr, "Exception message: %s\n", e.message());
+		fprintf(stderr, "Exception message (expected): %s\n", e.message());
 		exception_thrown = true;
 	}
 	assert(exception_thrown);
@@ -99,8 +103,9 @@ void test_exceptions(void)
 	exception_thrown = false;
 	try {
 		vector<int, mmap_allocator<int> > int_vec_wrong_alignment_file(512, 0, mmap_allocator<int>("testfile", READ_WRITE_PRIVATE, 123)); /* wrong alignment */
+		/* No exception here expected */
 	} catch (mmap_allocator_exception &e) {
-		fprintf(stderr, "Exception message: %s\n", e.message());
+		fprintf(stderr, "Exception message (not expected): %s\n", e.message());
 		exception_thrown = true;
 	}
 	assert(!exception_thrown);
@@ -299,8 +304,9 @@ void test_new_interface(void)
 	}
 	try {
 		vec.mmap_file("testfile", READ_ONLY, 0, 1024);
+		assert(0);
 	} catch (mmap_allocator_exception e) {
-		fprintf(stderr, "Exception message: %s\n", e.message());
+		fprintf(stderr, "Exception message (expected): %s\n", e.message());
 	}
 	vec.munmap_file();
 }
