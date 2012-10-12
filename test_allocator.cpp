@@ -288,6 +288,30 @@ void test_mapping_smaller_area_whole_file_flag_allocator(void)
 }
 
 
+void test_mapping_smaller_area_whole_file_flag_allocator_deleting_first_vec(void)
+{
+	int i;
+
+	fprintf(stderr, "Testing whole file flag via allocator, deleting first mapping before allocating second page\n");
+	generate_test_file(2048);
+
+	fprintf(stderr, "Testing int_vec_ro\n");
+	mmappable_vector<int, mmap_allocator<int> > *int_vec_ro_p = new mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, true, false));
+	int_vec_ro_p->mmap_file(1024);
+	for (i=0;i<1024;i++) {
+		assert((*int_vec_ro_p)[i] == i);
+	}
+	delete int_vec_ro_p;
+
+	mmappable_vector<int, mmap_allocator<int> > *int_vec_ro_second_page_p = new mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 4096, true, false));
+	int_vec_ro_second_page_p->mmap_file(1024);
+	for (i=0;i<1024;i++) {
+		assert((*int_vec_ro_second_page_p)[i] == i+1024);
+	}
+	delete int_vec_ro_second_page_p;
+}
+
+
 void test_new_interface(void)
 {
 	int i;
@@ -309,6 +333,13 @@ void test_new_interface(void)
 		fprintf(stderr, "Exception message (expected): %s\n", e.message());
 	}
 	vec.munmap_file();
+
+	generate_test_file(2048);
+	vec.mmap_file("testfile", READ_ONLY, 4096, 1024);
+	for (i=0;i<1024;i++) {
+fprintf(stderr, "%d\n", vec[i]);
+		assert(vec[i] == i+1024);
+	}
 }
 
 int main(int argc, char ** argv)
@@ -322,5 +353,6 @@ int main(int argc, char ** argv)
 	test_mapping_smaller_area();
 	test_mapping_smaller_area_whole_file_flag();
 	test_mapping_smaller_area_whole_file_flag_allocator();
+	test_mapping_smaller_area_whole_file_flag_allocator_deleting_first_vec();
 	test_new_interface();
 }

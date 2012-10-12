@@ -153,11 +153,7 @@ public:
 		void mmap_file(size_t n)
 		{
 			std::vector<T,A>::reserve(n);
-#ifdef __GNUC__
-			std::vector<T,A>::_M_impl._M_finish = std::vector<T,A>::_M_impl._M_end_of_storage;
-#else
-#error "Not GNU C++, please either implement me or use GCC"
-#endif		
+			_M_set_finish(n);
 		}
 
 		void mmap_file(std::string filename, enum access_mode access_mode, const off_t offset, const size_t n, bool map_whole_file = false, bool allow_remap = false)
@@ -181,7 +177,25 @@ public:
 
 		void munmap_file(void)
 		{
-			std::vector<T,A>::resize(0);
+			size_t n = std::vector<T,A>::size();
+#ifdef __GNUC__
+			std::vector<T,A>::_M_deallocate(std::vector<T,A>::_M_impl._M_start, n);
+			std::vector<T,A>::_M_impl._M_start = 0;
+			std::vector<T,A>::_M_impl._M_finish = 0;
+			std::vector<T,A>::_M_impl._M_end_of_storage = 0;
+#else
+#error "Not GNU C++, please either implement me or use GCC"
+#endif
+		}
+
+private:
+		void _M_set_finish(size_t n)
+		{
+#ifdef __GNUC__
+			std::vector<T,A>::_M_impl._M_finish = std::vector<T,A>::_M_impl._M_start + n;
+#else
+#error "Not GNU C++, please either implement me or use GCC"
+#endif		
 		}
 	};
 }
