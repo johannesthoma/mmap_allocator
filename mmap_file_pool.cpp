@@ -121,9 +121,7 @@ namespace mmap_allocator_namespace {
 			}
 		}
 
-fprintf(stderr, "offset_to_map = %d\n", offset_to_map);
 		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
-fprintf(stderr, "mmap returned %p\n", memory_area);
 		if (address_to_map != NULL && !allow_remap && memory_area != MAP_FAILED && memory_area != address_to_map) {
 			if (munmap(memory_area, length_to_map) < 0) {
 #ifdef MMAP_ALLOCATOR_DEBUG
@@ -145,8 +143,7 @@ fprintf(stderr, "mmap returned %p\n", memory_area);
 		reference_count++;
 
 		void *ret = ((char*)memory_area)+offset-offset_to_map;
-assert(ret >= memory_area && ret < (char*)memory_area+size_mapped);
-fprintf(stderr, "returning %p\n", ret);
+		// assert(ret >= memory_area && ret < (char*)memory_area+size_mapped);
 
 		return ret;
 	}
@@ -179,13 +176,10 @@ fprintf(stderr, "returning %p\n", ret);
 
 		it = the_map.find(the_identifier);
 		if (it != the_map.end()) {
-fprintf(stderr, "found %p\n", &it);
 			return it->second.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
 		} else {
 			mmapped_file the_file;
 			void *ret;
-fprintf(stderr, "not found\n");
-fprintf(stderr, "the_file.memory_area = %p\n", the_file.get_memory_area());
 
 			ret = the_file.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
 			the_map.insert(mmapped_file_pair_t(the_identifier, the_file));

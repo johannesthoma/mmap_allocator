@@ -337,8 +337,6 @@ void test_new_interface(void)
 	generate_test_file(2048);
 	vec.mmap_file("testfile", READ_ONLY, 4096, 1024);
 	for (i=0;i<1024;i++) {
-fprintf(stderr, "%d\n", vec[i]);
-fprintf(stderr, "%p\n", &vec[i]);
 		assert(vec[i] == i+1024);
 	}
 }
@@ -353,8 +351,6 @@ void test_cache_bug(void)
 	vec.mmap_file("testfile", READ_ONLY, 4096, 1024);
 
 	for (i=0;i<1024;i++) {
-fprintf(stderr, "%d\n", vec[i]);
-fprintf(stderr, "%p\n", &vec[i]);
 		assert(vec[i] == i+1024);
 	}
 }

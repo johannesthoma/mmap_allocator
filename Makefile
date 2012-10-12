@@ -3,7 +3,7 @@ CFLAGS=-g -Wall
 
 TARGET_DIR=/home/johannes/re3
 
-all: test mmap_file_pool.o
+all: test_allocator mmap_file_pool.o
 
 debug: CPPFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
 debug: CFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
@@ -12,8 +12,12 @@ debug: clean all
 install: mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h
 	cp mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h $(TARGET_DIR)
 
-test: test_allocator
+test: all
 	@echo "Running mmap allocator regression test suite."
+	./test_allocator
+
+debugtest: debug
+	@echo "Running mmap allocator regression test suite with verbose enabled."
 	./test_allocator
 
 test_allocator: mmap_allocator.h mmap_file_pool.o test_allocator.o
@@ -27,4 +31,4 @@ clean:
 
 mmap_file_pool.o: mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h
 
-test_allocator.o: mmap_file_pool.h mmap_allocator.h mmap_access_mode.h
+test_allocator.o: test_allocator.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h
