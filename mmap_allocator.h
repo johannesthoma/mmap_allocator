@@ -10,6 +10,9 @@
 
 namespace mmap_allocator_namespace
 {
+	template <typename T, typename A>
+        class mmappable_vector;
+
 	template <typename T> 
 	class mmap_allocator: public std::allocator<T>
 	{
@@ -97,6 +100,8 @@ public:
 		~mmap_allocator() throw() { }
 
 private:
+		friend class mmappable_vector<T, mmap_allocator<T> >;
+
 		std::string filename;
 		offset_type offset;
 		enum access_mode access_mode;
@@ -126,7 +131,7 @@ public:
 		explicit mmappable_vector(size_t n):
 			std::vector<T,A>()
 		{
-			map_into_memory(n);
+			mmap_file(n);
 		}
 
 		explicit mmappable_vector(A alloc):
@@ -144,7 +149,8 @@ public:
 		{
 		}
 
-		void map_into_memory(const size_t n)
+/* Use this only when the allocator is already initialized. */
+		void mmap_file(size_t n)
 		{
 			std::vector<T,A>::reserve(n);
 #ifdef __GNUC__
@@ -152,7 +158,31 @@ public:
 #else
 #error "Not GNU C++, please either implement me or use GCC"
 #endif		
-		}	
+		}
+
+		void mmap_file(std::string filename, enum access_mode access_mode, const off_t offset, const size_t n, bool map_whole_file = false, bool allow_remap = false)
+		{
+			if (std::vector<T,A>::size() > 0) {
+				throw mmap_allocator_exception("Remapping currently not implemented.");
+			}
+#ifdef __GNUC__
+			A &the_allocator = std::vector<T,A>::_M_get_Tp_allocator();
+#else
+#error "Not GNU C++, please either implement me or use GCC"
+#endif		
+			the_allocator.filename = filename;
+			the_allocator.offset = offset;
+			the_allocator.access_mode = access_mode;
+			the_allocator.map_whole_file = map_whole_file;
+			the_allocator.allow_remap = allow_remap;
+
+			mmap_file(n);
+		}
+
+		void munmap_file(void)
+		{
+			std::vector<T,A>::resize(0);
+		}
 	};
 }
 
