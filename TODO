@@ -1,0 +1,14 @@
+TODO for mmap_allocator
+-----------------------
+
+Have a option to set verbosity at runtime, instead of having to recompile.
+
+Allow remapping of already mapped vectors.
+
+Support for STL strings.
+
+Convert bool parameters to bit flag.
+
+Option to not use mempool (always_remap or so).
+
+
