@@ -40,6 +40,8 @@ public:
 		bool munmap_and_close_file(void);
 
 private:
+		friend class mmap_file_pool;
+
                 int fd;
                 void *memory_area;
                 size_t size_mapped;

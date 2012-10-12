@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <assert.h>
 
 namespace mmap_allocator_namespace {
 	off_t filesize(int fd)
@@ -103,12 +104,12 @@ namespace mmap_allocator_namespace {
 
 		if (offset_to_map == offset_mapped && length_to_map == size_mapped) {
 			reference_count++;
-			return ((char*)memory_area)+offset;
+			return ((char*)memory_area)+offset-offset_mapped;
 		}
 		if (offset_to_map >= offset_mapped && length_to_map + offset_to_map - offset_mapped <= size_mapped)
 		{
 			reference_count++;
-			return ((char*)memory_area)+offset;
+			return ((char*)memory_area)+offset-offset_mapped;
 		}
 		
 		if (memory_area != NULL) {
@@ -120,7 +121,9 @@ namespace mmap_allocator_namespace {
 			}
 		}
 
+fprintf(stderr, "offset_to_map = %d\n", offset_to_map);
 		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
+fprintf(stderr, "mmap returned %p\n", memory_area);
 		if (address_to_map != NULL && !allow_remap && memory_area != MAP_FAILED && memory_area != address_to_map) {
 			if (munmap(memory_area, length_to_map) < 0) {
 #ifdef MMAP_ALLOCATOR_DEBUG
@@ -141,7 +144,11 @@ namespace mmap_allocator_namespace {
 		size_mapped = length_to_map;
 		reference_count++;
 
-		return ((char*)memory_area)+offset;
+		void *ret = ((char*)memory_area)+offset-offset_to_map;
+assert(ret >= memory_area && ret < (char*)memory_area+size_mapped);
+fprintf(stderr, "returning %p\n", ret);
+
+		return ret;
 	}
 
 	bool mmapped_file::munmap_and_close_file(void)
@@ -172,10 +179,13 @@ namespace mmap_allocator_namespace {
 
 		it = the_map.find(the_identifier);
 		if (it != the_map.end()) {
+fprintf(stderr, "found %p\n", &it);
 			return it->second.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
 		} else {
 			mmapped_file the_file;
 			void *ret;
+fprintf(stderr, "not found\n");
+fprintf(stderr, "the_file.memory_area = %p\n", the_file.get_memory_area());
 
 			ret = the_file.open_and_mmap_file(fname, access_mode, offset, length, map_whole_file, allow_remap);
 			the_map.insert(mmapped_file_pair_t(the_identifier, the_file));
