@@ -11,4 +11,6 @@ Convert bool parameters to bit flag.
 
 Option to not use mempool (always_remap or so).
 
+Have more converters between mmappable_vectors and plain STL vectors.
+
 

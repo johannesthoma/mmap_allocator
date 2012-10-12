@@ -4,7 +4,7 @@ mmap_allocator - A STL allocator that mmaps files
 Introduction
 ------------
 
-When reading large files (>10GB) into memory, read() calls are usually 
+When reading large files (>100MB) into memory, read() calls are usually 
 not very space and time efficient, since the whole data is copiied at
 least once. Furthermore, when using STL containers (like a vector for
 example), data is copiied another time unless you specify the location
@@ -18,7 +18,7 @@ an interface to do exactly this.
 
 Put short, if you need to handle big files that contain unstructured data 
 (like doubles or even text files), mmap_allocator is worth a try. It was
-written as part of a consulting project I did for a big Austrian bank.
+written as part of a consulting project I did for a large Austrian bank.
 
 License
 -------
@@ -40,26 +40,33 @@ mapped regions directly.
 Usage
 -----
 
-To use this, simply copy the mmap_allocator.h file into your project
-and include it. No compilation of the library itself is required (the
-Makefile will compile and run the regression test file).
+To use this, simply copy the mmap*.[h|cpp] files into your project,
+include the mmap_allocator.h header and compile and link with the
+mmap_file_pool.cpp file.
 
 Example
 -------
 
 Suppose you have a file with 1024 ints. Then:
 
-	mmappable_vector<int, mmap_allocator<int> > my_vector = 
-		vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile"));
+	mmappable_vector<int> my_vector;
 
 declares a vector that uses mmap_allocator to mmap the file. By calling:
 
-	my_vector.map_into_memory(1024);
+	my_vector.mmap_file("testfile", READ_ONLY, 0, 1024);
 
-the STL vector class will call allocate which in turn will mmap the file and 
-set the content of the vector to the mmapped area. The file's content can
-then be accessed the usual way (my_vector[i]). Update: Starting with
-version 0.4 this also sets the size of the vector correctly.
+the mmappable_vector class will call allocate of the mmap_allocator
+class, which in turn will mmap the file and set the content of the 
+vector to the mmapped area. The file's content can then be accessed 
+the usual way (my_vector[i]). 
+
+Use 
+
+	my_vector.munmap_file();
+
+to drop the mapping (it may remain in an internal cache, however). After
+this call all accesses of mmappable_vector elements are invalid, same
+goes for the iterators.
 
 Do not forget to:
 
@@ -73,9 +80,9 @@ and include:
 
 but you probably know that yourself ;)
 
-Please see the test_allocator.cpp file for more examples (\footnote{
-I used Testdriven development for this project and can highly recommend
-this}).
+Please see the test_allocator.cpp file for more examples 
+(I used Testdriven development for this project and can highly recommend
+this development model).
 
 Mode
 ----
@@ -126,6 +133,44 @@ the content (which is not wanted since the content is coming from the
 mmapped file). From now on, please use the mmapped_vector class for
 using mmap_allocator.
 
+The old method by using the mmap_allocators constructor to set the
+parameters for file mapping is still supported, however deprecated.
+
+READ_WRITE caveats
+------------------
+
+Unlike reading from a file, a mmappable_vector that is mapped via
+the mmap file pool contains all changes already made to the content
+before. Suppose if you have:
+
+    mmappable_vector<int> p;
+    if (method == MMAP) {
+	p.mmap_file("testfile", READ_WRITE_PRIVATE, 0, filesize("testfile")); 
+    } else {
+        readFromFileIntoVector(p, "testfile", READ_WRITE_PRIVATE, 0, filesize("testfile")
+    }
+
+and then do something like:
+
+    for (it = p.begin();it != p.end();it++) {
+       *it += 1;
+    }
+
+This will do not what you would expect at first glance when being called
+twice. When the vector maps the file for the second time, it will map it
+from the file pool and hence already have the values increased by one.
+
+To avoid this, use the (yet-to-be-implemented) bypass_file_pool flag which
+will cause the file being mmapped another time with different virtual
+memory mappings.
+
+Exceptions
+----------
+
+There is a custom exception class mmap_allocator_exception which is
+used at various places, for example when the file to be mapped is 
+not found. Use the e.message() method to find out what happened.
+
 Version history
 ---------------
 
@@ -136,6 +181,7 @@ Version history
 * 0.3.2, never use MAP_FIXED.
 * 0.3.3, bugfix in computing pointers.
 * 0.4.0, mmapped_vector class.
+* 0.5.0, cleaner interface, illegal offset bugfix.
 
 Author
 ------
