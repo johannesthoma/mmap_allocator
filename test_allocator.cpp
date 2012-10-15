@@ -212,7 +212,6 @@ void test_conversion(void)
 	mmap_vector.mmap_file("testfile", READ_ONLY, 0, 1024);
 
 	std_vector = to_std_vector(mmap_vector);
-	mmap_vector = to_mmappable_vector(std_vector);
 }
 
 
