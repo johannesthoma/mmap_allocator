@@ -8,13 +8,31 @@
 #include <assert.h>
 
 namespace mmap_allocator_namespace {
+
+#ifndef MMAP_ALLOCATOR_DEBUG
+#define MMAP_ALLOCATOR_DEBUG 0
+#endif
+
+	int verbosity = MMAP_ALLOCATOR_DEBUG;
+
+	void set_verbosity(int v)
+	{
+		verbosity = v;
+	}
+
+	int get_verbosity(void)
+	{
+		return verbosity;
+	}
+
 	off_t filesize(int fd)
 	{
 		struct stat buf;
 		if (fstat(fd, &buf) < 0) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-			perror("stat");
-#endif
+			if (get_verbosity() > 0) {
+				perror("stat");
+			}
+
 			throw mmap_allocator_exception("Cannot stat file");
 		}
 
@@ -25,9 +43,9 @@ namespace mmap_allocator_namespace {
 	{
 		struct stat buf;
 		if (stat(fname.c_str(), &buf) < 0) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-			perror("stat");
-#endif
+			if (get_verbosity() > 0) {
+				perror("stat");
+			}
 			throw mmap_allocator_exception("Cannot stat file");
 		}
 
@@ -88,9 +106,10 @@ namespace mmap_allocator_namespace {
 		if (fd == -1) {
 			fd = open(filename.c_str(), mode);
 			if (fd < 0) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-				perror("open");
-#endif
+				if (get_verbosity() > 0) {
+					perror("open");
+				}
+
 				throw mmap_allocator_exception("Error opening file");
 			}
 		}
@@ -114,9 +133,9 @@ namespace mmap_allocator_namespace {
 		
 		if (memory_area != NULL) {
 			if (munmap(memory_area, size_mapped) < 0) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-				perror("munmap");
-#endif
+				if (get_verbosity() > 0) {
+					perror("munmap");
+				}
 				throw mmap_allocator_exception("Error in munmap");
 			}
 		}
@@ -124,18 +143,18 @@ namespace mmap_allocator_namespace {
 		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
 		if (address_to_map != NULL && !allow_remap && memory_area != MAP_FAILED && memory_area != address_to_map) {
 			if (munmap(memory_area, length_to_map) < 0) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-				perror("munmap");
-#endif
+				if (get_verbosity() > 0) {
+					perror("munmap");
+				}
 				throw mmap_allocator_exception("Error in munmap");
 			}
 			throw mmap_allocator_exception("Request to remap area but allow_remap is not given");
 		}
 
 		if (memory_area == MAP_FAILED) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-			perror("mmap");
-#endif
+			if (get_verbosity() > 0) {
+				perror("mmap");
+			}
 			throw mmap_allocator_exception("Error in mmap");
 		}
 		offset_mapped = offset_to_map;
@@ -155,15 +174,15 @@ namespace mmap_allocator_namespace {
 			return false;
 		}
 		if (munmap(memory_area, size_mapped) < 0) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-			perror("munmap");
-#endif
+			if (get_verbosity() > 0) {
+				perror("munmap");
+			}
 			throw mmap_allocator_exception("Error in munmap");
 		}
 		if (close(fd)) {
-#ifdef MMAP_ALLOCATOR_DEBUG
-			perror("close");
-#endif
+			if (get_verbosity() > 0) {
+				perror("close");
+			}
 			throw mmap_allocator_exception("Error in close");
 		}
 		fd = -1;

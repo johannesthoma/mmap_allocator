@@ -175,6 +175,16 @@ There is a custom exception class mmap_allocator_exception which is
 used at various places, for example when the file to be mapped is 
 not found. Use the e.message() method to find out what happened.
 
+Verbosity
+---------
+
+To debug the allocator, there are two ways: 
+
+* call set_verbosity() with a positive value at runtime.
+* define MMAP_ALLOCATOR_DEBUG as a positive value at compile time.
+
+The latter is done by make test.
+
 Version history
 ---------------
 
@@ -188,6 +198,7 @@ Version history
 * 0.5.0, cleaner interface, illegal offset bugfix.
 * 0.5.1, bypass_file_pool flag.
 * 0.5.2, changed bool parameters to flags argument.
+* 0.5.3, set_verbosity() to toggle debug output.
 
 Author
 ------

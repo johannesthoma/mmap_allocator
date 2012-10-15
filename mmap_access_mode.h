@@ -7,8 +7,6 @@
 #define UPPER_ALIGN_TO_PAGE(x) ALIGN_TO_PAGE((x)+(getpagesize()-1))
 #define OFFSET_INTO_PAGE(x) ((x) & (getpagesize() - 1))
 
-// #define MMAP_ALLOCATOR_DEBUG 1
-
 namespace mmap_allocator_namespace
 {
 	enum access_mode {
@@ -24,6 +22,9 @@ namespace mmap_allocator_namespace
 		BYPASS_FILE_POOL = 4
 	};
 
+	void set_verbosity(int v);
+	int get_verbosity(void);
+
 	class mmap_allocator_exception: public std::exception {
 public:
 		mmap_allocator_exception() throw(): 
@@ -36,9 +37,9 @@ public:
 			std::exception(),
 			msg(msg_param)
 		{
-#ifdef MMAP_ALLOCATOR_DEBUG
-			fprintf(stderr, "Throwing exception %s\n", msg_param);
-#endif
+			if (get_verbosity() > 0) {
+				fprintf(stderr, "Throwing exception %s\n", msg_param);
+			}
 		}
 
 		virtual ~mmap_allocator_exception(void) throw()

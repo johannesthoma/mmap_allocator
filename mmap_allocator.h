@@ -31,9 +31,9 @@ public:
 		pointer allocate(size_type n, const void *hint=0)
 		{
 			void *the_pointer;
-#ifdef MMAP_ALLOCATOR_DEBUG
-			fprintf(stderr, "Alloc %d bytes.\n", n*sizeof(T));
-#endif
+			if (get_verbosity() > 0) {
+				fprintf(stderr, "Alloc %d bytes.\n", n*sizeof(T));
+			}
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
 			} else {
@@ -45,9 +45,9 @@ public:
 				if (the_pointer == NULL) {
 					throw(mmap_allocator_exception("Couldn't mmap file, mmap_file returned NULL"));
 				}
-#ifdef MMAP_ALLOCATOR_DEBUG
-				fprintf(stderr, "pointer = %p\n", the_pointer);
-#endif
+				if (get_verbosity() > 0) {
+					fprintf(stderr, "pointer = %p\n", the_pointer);
+				}
 				
 				return (pointer)the_pointer;
 			}
@@ -55,9 +55,9 @@ public:
 
 		void deallocate(pointer p, size_type n)
 		{
-#ifdef MMAP_ALLOCATOR_DEBUG
-			fprintf(stderr, "Dealloc %d bytes (%p).\n", n*sizeof(T), p);
-#endif
+			if (get_verbosity() > 0) {
+				fprintf(stderr, "Dealloc %d bytes (%p).\n", n*sizeof(T), p);
+			}
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				std::allocator<T>::deallocate(p, n);
 			} else {
