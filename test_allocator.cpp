@@ -355,6 +355,26 @@ void test_cache_bug(void)
 	}
 }
 
+void test_private_file_pool(void)
+{
+	mmappable_vector<int> vec;
+	mmappable_vector<int> vec2;
+	int i;
+	
+	fprintf(stderr, "Testing if bypass_file_pool works.\n");
+	generate_test_file(1024);
+	vec.mmap_file("testfile", READ_ONLY, 0, 1024, false, false, true);
+	for (i=0;i<1024;i++) {
+		assert(vec[i] == i);
+	}
+
+	vec2.mmap_file("testfile", READ_ONLY, 0, 1024, false, false, true);
+	for (i=0;i<1024;i++) {
+		assert(vec[i] == i);
+	}
+	assert(&vec[0] != &vec2[0]);
+}
+
 int main(int argc, char ** argv)
 {
 	test_page_align_macros();
@@ -369,4 +389,5 @@ int main(int argc, char ** argv)
 	test_mapping_smaller_area_whole_file_flag_allocator();
 	test_mapping_smaller_area_whole_file_flag_allocator_deleting_first_vec();
 	test_new_interface();
+	test_private_file_pool();
 }

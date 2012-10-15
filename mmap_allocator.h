@@ -37,7 +37,11 @@ public:
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
 			} else {
-				the_pointer = the_pool.mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file, allow_remap);
+				if (bypass_file_pool) {
+					the_pointer = private_file.open_and_mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file, allow_remap);
+				} else {
+					the_pointer = the_pool.mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file, allow_remap);
+				}
 				if (the_pointer == NULL) {
 					throw(mmap_allocator_exception("Couldn't mmap file, mmap_file returned NULL"));
 				}
@@ -57,7 +61,11 @@ public:
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				std::allocator<T>::deallocate(p, n);
 			} else {
-				the_pool.munmap_file(filename, access_mode, offset, n*sizeof(T));
+				if (bypass_file_pool) {
+					private_file.munmap_and_close_file();
+				} else {
+					the_pool.munmap_file(filename, access_mode, offset, n*sizeof(T));
+				}
 			}
 		}
 
@@ -67,7 +75,9 @@ public:
 			offset(0),
 			access_mode(DEFAULT_STL_ALLOCATOR),
 			map_whole_file(false),
-			allow_remap(false)
+			allow_remap(false),
+			bypass_file_pool(false),
+			private_file()
 		{ }
 
 		mmap_allocator(const std::allocator<T> &a) throw():
@@ -76,7 +86,9 @@ public:
 			offset(0),
 			access_mode(DEFAULT_STL_ALLOCATOR),
 			map_whole_file(false),
-			allow_remap(false)
+			allow_remap(false),
+			bypass_file_pool(false),
+			private_file()
 		{ }
 
 		mmap_allocator(const mmap_allocator &a) throw():
@@ -85,15 +97,19 @@ public:
 			offset(a.offset),
 			access_mode(a.access_mode),
 			map_whole_file(a.map_whole_file),
-			allow_remap(a.allow_remap)
+			allow_remap(a.allow_remap),
+			bypass_file_pool(a.bypass_file_pool),
+			private_file(a.private_file)
 		{ }
-		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, offset_type offset_param = 0, bool map_whole_file_param = false, bool allow_remap_param = false) throw():
+		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, offset_type offset_param = 0, bool map_whole_file_param = false, bool allow_remap_param = false, bool bypass_file_pool = false) throw():
 			std::allocator<T>(),
 			filename(filename_param),
 			offset(offset_param),
 			access_mode(access_mode_param),
 			map_whole_file(map_whole_file_param),
-			allow_remap(allow_remap_param)
+			allow_remap(allow_remap_param),
+			bypass_file_pool(bypass_file_pool),
+			private_file()
 		{
 		}
 			
@@ -107,6 +123,8 @@ private:
 		enum access_mode access_mode;
 		bool map_whole_file;
 		bool allow_remap;
+		bool bypass_file_pool;
+		mmapped_file private_file;  /* used if bypass is set */
 	};
 
 	template <typename T, typename A = mmap_allocator<T> > 
@@ -156,7 +174,7 @@ public:
 			_M_set_finish(n);
 		}
 
-		void mmap_file(std::string filename, enum access_mode access_mode, const off_t offset, const size_t n, bool map_whole_file = false, bool allow_remap = false)
+		void mmap_file(std::string filename, enum access_mode access_mode, const off_t offset, const size_t n, bool map_whole_file = false, bool allow_remap = false, bool bypass_file_pool = false)
 		{
 			if (std::vector<T,A>::size() > 0) {
 				throw mmap_allocator_exception("Remapping currently not implemented.");
@@ -171,6 +189,7 @@ public:
 			the_allocator.access_mode = access_mode;
 			the_allocator.map_whole_file = map_whole_file;
 			the_allocator.allow_remap = allow_remap;
+			the_allocator.bypass_file_pool = bypass_file_pool;
 
 			mmap_file(n);
 		}
