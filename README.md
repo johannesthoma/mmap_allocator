@@ -199,6 +199,7 @@ Version history
 * 0.5.1, bypass_file_pool flag.
 * 0.5.2, changed bool parameters to flags argument.
 * 0.5.3, set_verbosity() to toggle debug output.
+* 0.6.0, to_stl_vector function template.
 
 Author
 ------
