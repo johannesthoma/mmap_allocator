@@ -5,14 +5,14 @@ Done:
 
 Option to not use mempool (bypass_file_pool).
 
+Convert bool parameters to bit flag.
+
 
 For 0.6:
 
 Have a option to set verbosity at runtime, instead of having to recompile.
 
 Allow remapping of already mapped vectors.
-
-Convert bool parameters to bit flag.
 
 Have more converters between mmappable_vectors and plain STL vectors.
 

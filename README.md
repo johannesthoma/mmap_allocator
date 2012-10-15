@@ -110,18 +110,23 @@ We needed this because our program (that uses mmap_allocator) mmaps
 a file in many small chunks (10K junks) which eventually lead to a
 Out of filedescriptors error (when mapping a 100Meg file in 10K junks).
 
-Following parameters have been added to the mmap_allocator constructor:
+Following flags can be passed (by |'ing them together) to the mmap_file
+method:
 
-* map_whole_file: Set this to true when you know that you need
+* MAP_WHOLE_FILE: Set this flag when you know that you need
 the whole (or most parts of the) file later and only want to 
 request a part of it now.
 
-* allow_remap: Set this to true if you are allocating a vector
+* ALLOW_REMAP: Set this flag if you are allocating a vector
 from a mmapped file and you know that you do not need previous
 mappings any more. Normally this is used when the file size 
 changes (in particular when it grows). Be aware, however that
 this could invalidate all allocations for that file that have
 been made before.
+
+* BYPASS_FILE_POOL: Set this flag if you want a per-vector
+private mapping. This is useful in conjunction with READ_WRITE_PRIVATE
+mappings.
 
 Mmappable vector class
 ----------------------
@@ -182,6 +187,7 @@ Version history
 * 0.4.0, mmapped_vector class.
 * 0.5.0, cleaner interface, illegal offset bugfix.
 * 0.5.1, bypass_file_pool flag.
+* 0.5.2, changed bool parameters to flags argument.
 
 Author
 ------
