@@ -3,7 +3,7 @@ CFLAGS=-g -Wall
 
 PREFIX=/usr
 
-SOURCES=mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmap_file_pool_windows_dummy.cpp
+SOURCES=mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h
 
 HEADERS=mmap_access_mode.h mmap_allocator.h mmap_file_pool.h
 LIBRARIES=libmmap_allocator.so
