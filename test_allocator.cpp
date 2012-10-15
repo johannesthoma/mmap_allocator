@@ -176,7 +176,7 @@ void test_mmap(void)
 
 	fprintf(stderr, "Testing int_vec_big\n");
 	generate_test_file(1024*1024);
-	mmappable_vector<int, mmap_allocator<int> > int_vec_big = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, true, true));
+	mmappable_vector<int, mmap_allocator<int> > int_vec_big = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, MAP_WHOLE_FILE | ALLOW_REMAP));
 	int_vec_big.mmap_file(1024*1024);
 	for (i=0;i<1024*1024;i++) {
 if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_big[i]); }
@@ -186,7 +186,7 @@ if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_b
 
 	fprintf(stderr, "Testing int_vec_shifted_big\n");
 	generate_test_file(1024*1024);
-	mmappable_vector<int, mmap_allocator<int> > int_vec_shifted_big = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, sizeof(i), true, true));
+	mmappable_vector<int, mmap_allocator<int> > int_vec_shifted_big = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, sizeof(i), MAP_WHOLE_FILE | ALLOW_REMAP));
 	int_vec_shifted_big.mmap_file(1024*1024-1);
 	for (i=0;i<1024*1024-1;i++) {
 		assert(int_vec_shifted_big[i] == i+1);
@@ -195,7 +195,7 @@ if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_b
 
 	fprintf(stderr, "Testing int_vec_big_minus_one\n");
 	generate_test_file(1024*1024-1);
-	mmappable_vector<int, mmap_allocator<int> > int_vec_big_minus_one = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, true, true));
+	mmappable_vector<int, mmap_allocator<int> > int_vec_big_minus_one = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, MAP_WHOLE_FILE | ALLOW_REMAP));
 	int_vec_big_minus_one.mmap_file(1024*1024-1);
 	for (i=0;i<1024*1024-1;i++) {
 		assert(int_vec_big_minus_one[i] == i);
@@ -274,13 +274,13 @@ void test_mapping_smaller_area_whole_file_flag_allocator(void)
 	generate_test_file(2048);
 
 	fprintf(stderr, "Testing int_vec_ro\n");
-	mmappable_vector<int, mmap_allocator<int> > int_vec_ro = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, true, false));
+	mmappable_vector<int, mmap_allocator<int> > int_vec_ro = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, MAP_WHOLE_FILE));
 	int_vec_ro.mmap_file(1024);
 	for (i=0;i<1024;i++) {
 		assert(int_vec_ro[i] == i);
 	}
 
-	mmappable_vector<int, mmap_allocator<int> > int_vec_ro_second_page = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 4096, true, false));
+	mmappable_vector<int, mmap_allocator<int> > int_vec_ro_second_page = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 4096, MAP_WHOLE_FILE));
 	int_vec_ro_second_page.mmap_file(1024);
 	for (i=0;i<1024;i++) {
 		assert(int_vec_ro_second_page[i] == i+1024);
@@ -296,14 +296,14 @@ void test_mapping_smaller_area_whole_file_flag_allocator_deleting_first_vec(void
 	generate_test_file(2048);
 
 	fprintf(stderr, "Testing int_vec_ro\n");
-	mmappable_vector<int, mmap_allocator<int> > *int_vec_ro_p = new mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, true, false));
+	mmappable_vector<int, mmap_allocator<int> > *int_vec_ro_p = new mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 0, MAP_WHOLE_FILE));
 	int_vec_ro_p->mmap_file(1024);
 	for (i=0;i<1024;i++) {
 		assert((*int_vec_ro_p)[i] == i);
 	}
 	delete int_vec_ro_p;
 
-	mmappable_vector<int, mmap_allocator<int> > *int_vec_ro_second_page_p = new mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 4096, true, false));
+	mmappable_vector<int, mmap_allocator<int> > *int_vec_ro_second_page_p = new mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", READ_ONLY, 4096, MAP_WHOLE_FILE));
 	int_vec_ro_second_page_p->mmap_file(1024);
 	for (i=0;i<1024;i++) {
 		assert((*int_vec_ro_second_page_p)[i] == i+1024);
@@ -363,12 +363,12 @@ void test_private_file_pool(void)
 	
 	fprintf(stderr, "Testing if bypass_file_pool works.\n");
 	generate_test_file(1024);
-	vec.mmap_file("testfile", READ_ONLY, 0, 1024, false, false, true);
+	vec.mmap_file("testfile", READ_ONLY, 0, 1024, BYPASS_FILE_POOL);
 	for (i=0;i<1024;i++) {
 		assert(vec[i] == i);
 	}
 
-	vec2.mmap_file("testfile", READ_ONLY, 0, 1024, false, false, true);
+	vec2.mmap_file("testfile", READ_ONLY, 0, 1024, BYPASS_FILE_POOL);
 	for (i=0;i<1024;i++) {
 		assert(vec[i] == i);
 	}

@@ -166,6 +166,7 @@ namespace mmap_allocator_namespace {
 #endif
 			throw mmap_allocator_exception("Error in close");
 		}
+		fd = -1;
 		return true;
 	}
 

@@ -18,6 +18,12 @@ namespace mmap_allocator_namespace
 		READ_WRITE_SHARED  /* Read/write access, writes are propagated to disk (file is modified) */
 	};
 
+	enum allocator_flags {
+		MAP_WHOLE_FILE = 1,
+		ALLOW_REMAP = 2,
+		BYPASS_FILE_POOL = 4
+	};
+
 	class mmap_allocator_exception: public std::exception {
 public:
 		mmap_allocator_exception() throw(): 
