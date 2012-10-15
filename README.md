@@ -160,9 +160,8 @@ This will do not what you would expect at first glance when being called
 twice. When the vector maps the file for the second time, it will map it
 from the file pool and hence already have the values increased by one.
 
-To avoid this, use the (yet-to-be-implemented) bypass_file_pool flag which
-will cause the file being mmapped another time with different virtual
-memory mappings.
+To avoid this, use the bypass_file_pool flag which will cause the file 
+being mmapped another time with different virtual memory mappings.
 
 Exceptions
 ----------
@@ -182,6 +181,7 @@ Version history
 * 0.3.3, bugfix in computing pointers.
 * 0.4.0, mmapped_vector class.
 * 0.5.0, cleaner interface, illegal offset bugfix.
+* 0.5.1, bypass_file_pool flag.
 
 Author
 ------
