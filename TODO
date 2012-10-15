@@ -13,8 +13,6 @@ Compile as a shared library.
 
 make install should do what one expects (-> install_sources).
 
-For 0.6:
-
 Have more converters between mmappable_vectors and plain STL vectors.
 
 For 0.7:
@@ -24,6 +22,11 @@ Support for STL strings.
 Later:
 
 Support for other platforms
+	At least test different gcc / libstdc++ implementation.
 
 Allow remapping of already mapped vectors.
+
+Conversion function template from std vectors to mmapped vectors (if possible):
+	Only can convert from mmappable_vectors to std::vectors, don't 
+	know how to convert the other way.
 
