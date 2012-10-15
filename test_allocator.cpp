@@ -205,12 +205,14 @@ if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_b
 
 void test_conversion(void)
 {
-	vector<int, mmap_allocator<int> > mmap_vector = vector<int, mmap_allocator<int> >(mmap_allocator<int>("testfile", DEFAULT_STL_ALLOCATOR, 1000));
-
+	mmappable_vector<int> mmap_vector;
 	vector<int> std_vector;
 
+	generate_test_file(1024);
+	mmap_vector.mmap_file("testfile", READ_ONLY, 0, 1024);
+
 	std_vector = to_std_vector(mmap_vector);
-	mmap_vector = to_mmap_vector(std_vector);
+	mmap_vector = to_mmappable_vector(std_vector);
 }
 
 

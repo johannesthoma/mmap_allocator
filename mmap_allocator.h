@@ -157,6 +157,16 @@ public:
 		{
 		}
 
+		mmappable_vector(iterator from, iterator to):
+			std::vector<T,A>(from, to)
+		{
+		}
+		
+		mmappable_vector(typename std::vector<T,A>::iterator from, typename std::vector<T,A>::iterator to):
+			std::vector<T,A>(from, to)
+		{
+		}
+		
 		mmappable_vector(int n, T val, A alloc):
 			std::vector<T,A>(n, val, alloc)
 		{
@@ -217,17 +227,18 @@ private:
 #endif		
 		}
 	};
-}
 
-template <typename T> std::vector<T> to_std_vector(const std::vector <T, mmap_allocator_namespace::mmap_allocator<T> > &v)
-{
-	return std::vector<T, std::allocator<T> >(v.begin(), v.end());
-}
+	template <typename T> 
+	std::vector<T> to_std_vector(const mmappable_vector<T> &v)
+	{
+		return std::vector<T>(v.begin(), v.end());
+	}
 
-template <typename T>
-std::vector<T, mmap_allocator_namespace::mmap_allocator<T> > to_mmap_vector(std::vector<T, std::allocator<T> > &v)
-{
-	return std::vector<T, mmap_allocator_namespace::mmap_allocator<T> >(v.begin(), v.end());
+	template <typename T> 
+	mmappable_vector<T> to_mmappable_vector(std::vector<T> &v)
+	{
+		return mmappable_vector<T>(v.begin(), v.end());
+	}
 }
 
 #endif /* _MMAP_ALLOCATOR_H */

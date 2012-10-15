@@ -15,8 +15,6 @@ make install should do what one expects (-> install_sources).
 
 For 0.6:
 
-Allow remapping of already mapped vectors.
-
 Have more converters between mmappable_vectors and plain STL vectors.
 
 For 0.7:
@@ -26,3 +24,6 @@ Support for STL strings.
 Later:
 
 Support for other platforms
+
+Allow remapping of already mapped vectors.
+
