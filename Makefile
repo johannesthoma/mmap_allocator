@@ -1,7 +1,12 @@
 CPPFLAGS=-g -Wall
 CFLAGS=-g -Wall
 
+PREFIX=/usr
+
 SOURCES=mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmap_file_pool_windows_dummy.cpp
+
+HEADERS=mmap_access_mode.h mmap_allocator.h mmap_file_pool.h
+LIBRARIES=libmmap_allocator.so
 
 SRC_INSTALL_TARGET_DIR=/home/johannes/re3
 
@@ -17,7 +22,9 @@ libmmap_allocator.so: mmap_file_pool.o
 install_sources: $(SOURCES)
 	cp $(SOURCES) $(SRC_INSTALL_TARGET_DIR)
 
-# install: all
+install: all
+	install -m 644 $(HEADERS) $(PREFIX)/include
+	install -m 755 $(LIBRARIES) $(PREFIX)/lib
 	
 test: all
 	@echo "Running mmap allocator regression test suite."

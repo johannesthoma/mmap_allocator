@@ -11,13 +11,13 @@ Have a option to set verbosity at runtime, instead of having to recompile.
 
 Compile as a shared library.
 
+make install should do what one expects (-> install_sources).
+
 For 0.6:
 
 Allow remapping of already mapped vectors.
 
 Have more converters between mmappable_vectors and plain STL vectors.
-
-make install should do what one expects (-> install_sources).
 
 For 0.7:
 
