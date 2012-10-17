@@ -32,7 +32,7 @@ public:
 		{
 			void *the_pointer;
 			if (get_verbosity() > 0) {
-				fprintf(stderr, "Alloc %d bytes.\n", n*sizeof(T));
+				fprintf(stderr, "Alloc %zd bytes.\n", n*sizeof(T));
 			}
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
@@ -56,7 +56,7 @@ public:
 		void deallocate(pointer p, size_type n)
 		{
 			if (get_verbosity() > 0) {
-				fprintf(stderr, "Dealloc %d bytes (%p).\n", n*sizeof(T), p);
+				fprintf(stderr, "Dealloc %zd bytes (%p).\n", n*sizeof(T), p);
 			}
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				std::allocator<T>::deallocate(p, n);
