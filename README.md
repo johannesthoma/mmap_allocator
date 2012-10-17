@@ -40,9 +40,16 @@ mapped regions directly.
 Usage
 -----
 
-To use this, simply copy the mmap*.[h|cpp] files into your project,
-include the mmap_allocator.h header and compile and link with the
-mmap_file_pool.cpp file.
+To build this, do a 
+
+        make
+
+followed by a 
+
+        make install
+
+When compiling, include the mmappable_vector.h file and link with 
+the -lmmap_allocator library.
 
 Example
 -------
@@ -70,13 +77,11 @@ goes for the iterators.
 
 Do not forget to:
 
-	using namespace std;
 	using namespace mmap_allocator_namespace;
 
 and include:
 
-	#include "mmap_allocator.h"
-	#include <vector>
+	#include "mmappable_vector.h"
 
 but you probably know that yourself ;)
 
@@ -200,6 +205,8 @@ Version history
 * 0.5.2, changed bool parameters to flags argument.
 * 0.5.3, set_verbosity() to toggle debug output.
 * 0.6.0, to_stl_vector function template.
+* 0.6.1, flags bugfix.
+* 0.7.0, moved mmappable_vector to separate header.
 
 Author
 ------
