@@ -208,6 +208,7 @@ void test_conversion(void)
 {
 	mmappable_vector<int> mmap_vector;
 	vector<int> std_vector;
+	mmappable_vector<int> mmap_vector2;
 	int i;
 
 	generate_test_file(1024);
@@ -219,6 +220,13 @@ void test_conversion(void)
 	std_vector = to_std_vector(mmap_vector);
 	for (i=0;i<1024;i++) {
 		assert(std_vector[i] == i);
+	}
+	for (i=0;i<1024;i++) {
+		std_vector[i] *= 2;
+	}
+	mmap_vector2 = to_mmappable_vector(std_vector);
+	for (i=0;i<1024;i++) {
+		assert(mmap_vector2[i] == i*2);
 	}
 }
 

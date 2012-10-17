@@ -43,6 +43,13 @@ public:
 		{
 		}
 		
+/*
+		mmappable_vector(std::vector<T,std::allocator<T> >::iterator from, std::vector<T,std::allocator<T> >::iterator to):
+			std::vector<T,A>(from, to)
+		{
+		}
+*/
+
 		mmappable_vector(int n, T val, A alloc):
 			std::vector<T,A>(n, val, alloc)
 		{
@@ -50,6 +57,11 @@ public:
 
 		mmappable_vector(int n, T val):
 			std::vector<T,A>(n, val)
+		{
+		}
+
+		mmappable_vector(std::vector<T,std::allocator<T> > v):
+			std::vector<T,std::allocator<T> >(v)
 		{
 		}
 
@@ -114,6 +126,13 @@ private:
 	std::vector<T> to_std_vector(const mmappable_vector<T> &v)
 	{
 		return std::vector<T>(v.begin(), v.end());
+	}
+
+	template <typename T> 
+	mmappable_vector<T> to_mmappable_vector(const std::vector<T> &v)
+	{
+		// return mmappable_vector<T>(v.begin(), v.end());
+		return (mmappable_vector<T>)v;
 	}
 }
 
