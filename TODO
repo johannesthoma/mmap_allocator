@@ -19,6 +19,8 @@ For 0.7:
 
 Support for STL strings.
 
+Move mmappable_vector to separate file.
+
 Later:
 
 Support for other platforms
