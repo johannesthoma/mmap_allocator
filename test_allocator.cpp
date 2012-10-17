@@ -1,4 +1,5 @@
 #include "mmap_allocator.h"
+#include "mmappable_vector.h"
 #include <stdio.h>
 #include <vector>
 #include <assert.h>
