@@ -1,6 +1,9 @@
 CPPFLAGS=-g -Wall
 CFLAGS=-g -Wall
 
+# Enable to test with GCC 3.4
+# CXX=g++34
+
 PREFIX=/usr
 
 SOURCES=mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h

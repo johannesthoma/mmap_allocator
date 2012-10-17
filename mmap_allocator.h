@@ -185,16 +185,22 @@ public:
 				throw mmap_allocator_exception("Remapping currently not implemented.");
 			}
 #ifdef __GNUC__
-			A &the_allocator = std::vector<T,A>::_M_get_Tp_allocator();
+#if __GNUC__ == 4
+			A *the_allocator = &std::vector<T,A>::_M_get_Tp_allocator();
+#elif __GNUC__ == 3
+			A *the_allocator = static_cast<A*>(&(this->std::vector<T,A>::_M_impl));
+#else
+#error "GNU C++ not version 3 or 4, please implement me"
+#endif		
 #else
 #error "Not GNU C++, please either implement me or use GCC"
 #endif		
-			the_allocator.filename = filename;
-			the_allocator.offset = offset;
-			the_allocator.access_mode = access_mode;
-			the_allocator.map_whole_file = (flags | MAP_WHOLE_FILE) != 0;
-			the_allocator.allow_remap = (flags | ALLOW_REMAP) != 0;
-			the_allocator.bypass_file_pool = (flags | BYPASS_FILE_POOL) != 0;
+			the_allocator->filename = filename;
+			the_allocator->offset = offset;
+			the_allocator->access_mode = access_mode;
+			the_allocator->map_whole_file = (flags | MAP_WHOLE_FILE) != 0;
+			the_allocator->allow_remap = (flags | ALLOW_REMAP) != 0;
+			the_allocator->bypass_file_pool = (flags | BYPASS_FILE_POOL) != 0;
 
 			mmap_file(n);
 		}
