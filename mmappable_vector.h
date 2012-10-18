@@ -11,52 +11,52 @@ namespace mmap_allocator_namespace {
 	template <typename T, typename A = mmap_allocator<T> > 
 	class mmappable_vector: public std::vector<T, A> {
 public:
-/* TODO: are these necessary here? */
-		typedef typename std::vector<T, A>::const_iterator const_iterator;
-		typedef typename std::vector<T, A>::iterator iterator;
+		typedef std::vector<T, A> Base;
+
+		typedef typename Base::const_iterator const_iterator;
+		typedef typename Base::iterator iterator;
 		typedef T value_type;
 		typedef A allocator_type;
 
 		mmappable_vector():
-			std::vector<T,A>()
+			Base()
 		{
 		}
 
 		mmappable_vector(const mmappable_vector<T, A> &other):
-			std::vector<T,A>(other)
+			Base(other)
 		{
 		}
 
 		explicit mmappable_vector(size_t n):
-			std::vector<T,A>()
+			Base()
 		{
 			mmap_file(n);
 		}
 
 		explicit mmappable_vector(A alloc):
-			std::vector<T,A>(alloc)
+			Base(alloc)
 		{
 		}
 
 		mmappable_vector(iterator from, iterator to):
-			std::vector<T,A>(from, to)
+			Base(from, to)
 		{
 		}
 		
-/*
-		mmappable_vector(std::vector<T,std::allocator<T> >::iterator from, std::vector<T,std::allocator<T> >::iterator to):
-			std::vector<T,A>(from, to)
+		template <typename Iter>
+		mmappable_vector(Iter first, Iter last, A a = A()):
+			Base(first, last, a)
 		{
 		}
-*/
 
 		mmappable_vector(int n, T val, A alloc):
-			std::vector<T,A>(n, val, alloc)
+			Base(n, val, alloc)
 		{
 		}
 
 		mmappable_vector(int n, T val):
-			std::vector<T,A>(n, val)
+			Base(n, val)
 		{
 		}
 
@@ -68,20 +68,20 @@ public:
 /* Use this only when the allocator is already initialized. */
 		void mmap_file(size_t n)
 		{
-			std::vector<T,A>::reserve(n);
+			Base::reserve(n);
 			_M_set_finish(n);
 		}
 
 		void mmap_file(std::string filename, enum access_mode access_mode, const off_t offset, const size_t n, int flags = 0)
 		{
-			if (std::vector<T,A>::size() > 0) {
+			if (Base::size() > 0) {
 				throw mmap_allocator_exception("Remapping currently not implemented.");
 			}
 #ifdef __GNUC__
 #if __GNUC__ == 4
-			A *the_allocator = &std::vector<T,A>::_M_get_Tp_allocator();
+			A *the_allocator = &Base::_M_get_Tp_allocator();
 #elif __GNUC__ == 3
-			A *the_allocator = static_cast<A*>(&(this->std::vector<T,A>::_M_impl));
+			A *the_allocator = static_cast<A*>(&(this->Base::_M_impl));
 #else
 #error "GNU C++ not version 3 or 4, please implement me"
 #endif		
@@ -100,12 +100,12 @@ public:
 
 		void munmap_file(void)
 		{
-			size_t n = std::vector<T,A>::size();
+			size_t n = Base::size();
 #ifdef __GNUC__
-			std::vector<T,A>::_M_deallocate(std::vector<T,A>::_M_impl._M_start, n);
-			std::vector<T,A>::_M_impl._M_start = 0;
-			std::vector<T,A>::_M_impl._M_finish = 0;
-			std::vector<T,A>::_M_impl._M_end_of_storage = 0;
+			Base::_M_deallocate(Base::_M_impl._M_start, n);
+			Base::_M_impl._M_start = 0;
+			Base::_M_impl._M_finish = 0;
+			Base::_M_impl._M_end_of_storage = 0;
 #else
 #error "Not GNU C++, please either implement me or use GCC"
 #endif
@@ -115,7 +115,7 @@ private:
 		void _M_set_finish(size_t n)
 		{
 #ifdef __GNUC__
-			std::vector<T,A>::_M_impl._M_finish = std::vector<T,A>::_M_impl._M_start + n;
+			Base::_M_impl._M_finish = Base::_M_impl._M_start + n;
 #else
 #error "Not GNU C++, please either implement me or use GCC"
 #endif		
@@ -131,8 +131,7 @@ private:
 	template <typename T> 
 	mmappable_vector<T> to_mmappable_vector(const std::vector<T> &v)
 	{
-		// return mmappable_vector<T>(v.begin(), v.end());
-		return (mmappable_vector<T>)v;
+		return mmappable_vector<T>(v.begin(), v.end());
 	}
 }
 

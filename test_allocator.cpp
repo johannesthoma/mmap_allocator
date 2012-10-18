@@ -211,6 +211,7 @@ void test_conversion(void)
 	mmappable_vector<int> mmap_vector2;
 	int i;
 
+	fprintf(stderr, "Testing conversion between STL vector and mmap vector.\n");
 	generate_test_file(1024);
 	mmap_vector.mmap_file("testfile", READ_ONLY, 0, 1024);
 	for (i=0;i<1024;i++) {
