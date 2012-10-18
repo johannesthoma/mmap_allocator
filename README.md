@@ -180,6 +180,14 @@ There is a custom exception class mmap_allocator_exception which is
 used at various places, for example when the file to be mapped is 
 not found. Use the e.message() method to find out what happened.
 
+Conversion function templates
+-----------------------------
+
+To convert between a STL vector and a mmappable vector, use the
+to_std_vector(mappable_vector) and to_mmappable_vector(std_vector)
+function templates. However, try to avoid this because this will
+copy the whole vector contents.
+
 Verbosity
 ---------
 
@@ -207,8 +215,11 @@ Version history
 * 0.6.0, to_stl_vector function template.
 * 0.6.1, flags bugfix.
 * 0.7.0, moved mmappable_vector to separate header.
+* 0.8.0, to_mmappable_vector conversion function.
 
 Author
 ------
 
 This was written by Johannes Thoma <johannes.thoma@gmx.at>
+Thanks to Piotr Nycz from stackoverflow for contributing 
+the constructor function template in mmappable_vector.h
