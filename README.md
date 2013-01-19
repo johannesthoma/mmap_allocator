@@ -216,6 +216,7 @@ Version history
 * 0.6.1, flags bugfix.
 * 0.7.0, moved mmappable_vector to separate header.
 * 0.8.0, to_mmappable_vector conversion function.
+* 1.0.0, final release (identical to 0.8.0)
 
 Author
 ------
