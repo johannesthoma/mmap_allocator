@@ -50,6 +50,11 @@ public:
 		{
 			return msg.c_str();
 		}
+
+		std::string &what(void)
+		{
+			return msg;
+		}
 private:
 		std::string msg; 
 	};

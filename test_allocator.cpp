@@ -64,6 +64,7 @@ void test_throw_catch(void)
 		assert(0);
 	} catch (mmap_allocator_exception e) {
 		fprintf(stderr, "Exception message (expected): %s\n", e.message());
+		assert(e.what() == "Test");
 	}
 	try {
 		do_throw();

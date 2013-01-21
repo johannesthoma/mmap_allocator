@@ -216,6 +216,7 @@ Version history
 * 0.6.1, flags bugfix.
 * 0.7.0, moved mmappable_vector to separate header.
 * 0.8.0, to_mmappable_vector conversion function.
+* 0.8.1, exception now knows what() method.
 
 Author
 ------
