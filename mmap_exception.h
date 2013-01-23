@@ -16,6 +16,14 @@ public:
 			}
 		}
 
+		mmap_allocator_exception(std::string msg_param) throw(): 
+			std::runtime_error(msg_param)
+		{
+			if (get_verbosity() > 0) {
+				fprintf(stderr, "Throwing exception %s\n", msg_param.c_str());
+			}
+		}
+
 		virtual ~mmap_allocator_exception(void) throw()
 		{
 		}

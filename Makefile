@@ -46,6 +46,6 @@ test_mmap_fixed: test_mmap_fixed.c
 clean:
 	rm -f test_allocator test_mmap_fixed testfile *.o libmmap_allocator.so
 
-mmap_file_pool.o: mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h
+mmap_file_pool.o: mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h mmap_exception.h
 
-test_allocator.o: test_allocator.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h
+test_allocator.o: test_allocator.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h mmap_exception.h

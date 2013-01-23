@@ -26,7 +26,7 @@ namespace mmap_allocator_namespace {
 		return verbosity;
 	}
 
-	off_t filesize(int fd)
+	off_t filesize(int fd, std::string fname)
 	{
 		struct stat buf;
 		if (fstat(fd, &buf) < 0) {
@@ -34,7 +34,7 @@ namespace mmap_allocator_namespace {
 				perror("stat");
 			}
 
-			throw mmap_allocator_exception("Cannot stat file");
+			throw mmap_allocator_exception("Cannot stat file" + fname);
 		}
 
 		return buf.st_size;
@@ -47,7 +47,7 @@ namespace mmap_allocator_namespace {
 			if (get_verbosity() > 0) {
 				perror("stat");
 			}
-			throw mmap_allocator_exception("Cannot stat file");
+			throw mmap_allocator_exception("Cannot stat file "+fname);
 		}
 
 		device = buf.st_dev;
@@ -111,12 +111,12 @@ namespace mmap_allocator_namespace {
 					perror("open");
 				}
 
-				throw mmap_allocator_exception("Error opening file");
+				throw mmap_allocator_exception("Error opening file" + filename);
 			}
 		}
 		if (map_whole_file) {
 			offset_to_map = 0;
-			length_to_map = filesize(fd);
+			length_to_map = filesize(fd, filename);
 		} else {
 			offset_to_map = ALIGN_TO_PAGE(offset);
 			length_to_map = UPPER_ALIGN_TO_PAGE(length);
@@ -137,7 +137,7 @@ namespace mmap_allocator_namespace {
 				if (get_verbosity() > 0) {
 					perror("munmap");
 				}
-				throw mmap_allocator_exception("Error in munmap");
+				throw mmap_allocator_exception("Error in munmap file "+filename);
 			}
 		}
 
@@ -147,16 +147,16 @@ namespace mmap_allocator_namespace {
 				if (get_verbosity() > 0) {
 					perror("munmap");
 				}
-				throw mmap_allocator_exception("Error in munmap");
+				throw mmap_allocator_exception("Error in munmap" + filename);
 			}
-			throw mmap_allocator_exception("Request to remap area but allow_remap is not given");
+			throw mmap_allocator_exception("Request to remap area but allow_remap is not given (remapping "+filename+")");
 		}
 
 		if (memory_area == MAP_FAILED) {
 			if (get_verbosity() > 0) {
 				perror("mmap");
 			}
-			throw mmap_allocator_exception("Error in mmap");
+			throw mmap_allocator_exception("Error in mmap "+filename);
 		}
 		offset_mapped = offset_to_map;
 		size_mapped = length_to_map;
@@ -219,7 +219,7 @@ namespace mmap_allocator_namespace {
 				the_map.erase(it);
 			}
 		} else {
-			throw mmap_allocator_exception("File not found in pool");
+			throw mmap_allocator_exception("File "+fname+" not found in pool");
 		}
 	}
 
