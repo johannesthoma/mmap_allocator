@@ -6,9 +6,9 @@ CFLAGS=-g -Wall
 
 PREFIX=/usr
 
-SOURCES=mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h
+SOURCES=mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h mmap_exception.h
 
-HEADERS=mmap_access_mode.h mmap_allocator.h mmap_file_pool.h
+HEADERS=mmap_access_mode.h mmap_allocator.h mmap_file_pool.h mmap_exception.h
 LIBRARIES=libmmap_allocator.so
 
 SRC_INSTALL_TARGET_DIR=/home/johannes/re3
