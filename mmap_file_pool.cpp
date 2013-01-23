@@ -1,4 +1,5 @@
 #include "mmap_file_pool.h"
+#include "mmap_exception.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>

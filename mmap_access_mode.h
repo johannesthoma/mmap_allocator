@@ -24,40 +24,6 @@ namespace mmap_allocator_namespace
 
 	void set_verbosity(int v);
 	int get_verbosity(void);
-
-	class mmap_allocator_exception: public std::exception {
-public:
-		mmap_allocator_exception() throw(): 
-			std::exception(),
-			msg("Unknown reason")
-		{
-		}
-
-		mmap_allocator_exception(const char *msg_param) throw(): 
-			std::exception(),
-			msg(msg_param)
-		{
-			if (get_verbosity() > 0) {
-				fprintf(stderr, "Throwing exception %s\n", msg_param);
-			}
-		}
-
-		virtual ~mmap_allocator_exception(void) throw()
-		{
-		}
-
-		const char *message(void)
-		{
-			return msg.c_str();
-		}
-
-		std::string &what(void)
-		{
-			return msg;
-		}
-private:
-		std::string msg; 
-	};
 }
 
 #endif

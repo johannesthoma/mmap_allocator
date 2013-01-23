@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <vector>
 #include "mmap_access_mode.h"
+#include "mmap_exception.h"
 #include "mmap_file_pool.h"
 
 namespace mmap_allocator_namespace
