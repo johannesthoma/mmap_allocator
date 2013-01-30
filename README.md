@@ -218,6 +218,7 @@ Version history
 * 0.8.0, to_mmappable_vector conversion function.
 * 0.8.1, exception now knows what() method.
 * 0.9.0, more standard conformant exception handling.
+* 0.9.1, fixed a permission bug in MMAP_READWRITE_PRIVATE.
 
 Author
 ------
