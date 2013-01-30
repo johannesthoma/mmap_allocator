@@ -100,7 +100,7 @@ namespace mmap_allocator_namespace {
 		switch (access_mode) {
 		case READ_ONLY: mode = O_RDONLY; prot = PROT_READ; mmap_mode |= MAP_SHARED; break;
 		case READ_WRITE_SHARED: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode |= MAP_SHARED; break;
-		case READ_WRITE_PRIVATE: mode = O_RDWR; prot = PROT_READ | PROT_WRITE; mmap_mode |= MAP_PRIVATE; break;
+		case READ_WRITE_PRIVATE: mode = O_RDONLY; prot = PROT_READ | PROT_WRITE; mmap_mode |= MAP_PRIVATE; break;
 		default: throw mmap_allocator_exception("Internal error"); break;
 		}
 
@@ -111,7 +111,7 @@ namespace mmap_allocator_namespace {
 					perror("open");
 				}
 
-				throw mmap_allocator_exception("Error opening file" + filename);
+				throw mmap_allocator_exception("Error opening file " + filename);
 			}
 		}
 		if (map_whole_file) {
