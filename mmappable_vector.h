@@ -94,6 +94,7 @@ public:
 			the_allocator->map_whole_file = (flags & MAP_WHOLE_FILE) != 0;
 			the_allocator->allow_remap = (flags & ALLOW_REMAP) != 0;
 			the_allocator->bypass_file_pool = (flags & BYPASS_FILE_POOL) != 0;
+			the_allocator->keep_forever = (flags & KEEP_FOREVER) != 0;
 
 			mmap_file(n);
 		}

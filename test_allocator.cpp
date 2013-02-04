@@ -457,12 +457,12 @@ void test_keep_forever(void)
 	{
 		mmappable_vector<int> vec;
 		fprintf(stderr, "Testing mapping with KEEP_FOREVER (you need to strace this: there should be NO close).\n");
-		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
 	}
 	{
 		mmappable_vector<int> vec;
 		fprintf(stderr, "Testing mapping with KEEP_FOREVER (you need to strace this: the file shouldn't be reopened).\n");
-		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
 	}
 }
 
