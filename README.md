@@ -219,6 +219,7 @@ Version history
 * 0.8.1, exception now knows what() method.
 * 0.9.0, more standard conformant exception handling.
 * 0.9.1, fixed a permission bug in MMAP_READWRITE_PRIVATE.
+* 0.10.0, KEEP_FOREVER flag: never close any file.
 
 Author
 ------

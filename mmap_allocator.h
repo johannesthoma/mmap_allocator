@@ -65,7 +65,9 @@ public:
 				if (bypass_file_pool) {
 					private_file.munmap_and_close_file();
 				} else {
-					the_pool.munmap_file(filename, access_mode, offset, n*sizeof(T));
+					if (!keep_forever) {
+						the_pool.munmap_file(filename, access_mode, offset, n*sizeof(T));
+					}
 				}
 			}
 		}
@@ -78,7 +80,8 @@ public:
 			map_whole_file(false),
 			allow_remap(false),
 			bypass_file_pool(false),
-			private_file()
+			private_file(),
+			keep_forever(false)
 		{ }
 
 		mmap_allocator(const std::allocator<T> &a) throw():
@@ -89,7 +92,8 @@ public:
 			map_whole_file(false),
 			allow_remap(false),
 			bypass_file_pool(false),
-			private_file()
+			private_file(),
+			keep_forever(false)
 		{ }
 
 		mmap_allocator(const mmap_allocator &a) throw():
@@ -100,7 +104,8 @@ public:
 			map_whole_file(a.map_whole_file),
 			allow_remap(a.allow_remap),
 			bypass_file_pool(a.bypass_file_pool),
-			private_file(a.private_file)
+			private_file(a.private_file),
+			keep_forever(a.keep_forever)
 		{ }
 		mmap_allocator(const std::string filename_param, enum access_mode access_mode_param = READ_ONLY, offset_type offset_param = 0, int flags = 0) throw():
 			std::allocator<T>(),
@@ -110,7 +115,8 @@ public:
 			map_whole_file((flags & MAP_WHOLE_FILE) != 0),
 			allow_remap((flags & ALLOW_REMAP) != 0),
 			bypass_file_pool((flags & BYPASS_FILE_POOL) != 0),
-			private_file()
+			private_file(),
+			keep_forever((flags & KEEP_FOREVER) != 0)
 		{
 		}
 			
@@ -126,6 +132,7 @@ private:
 		bool allow_remap;
 		bool bypass_file_pool;
 		mmapped_file private_file;  /* used if bypass is set */
+		bool keep_forever;
 	};
 }
 

@@ -398,7 +398,7 @@ void test_private_file_pool(void)
 	assert(&vec[0] != &vec2[0]);
 }
 
-#define FILESIZE (1024*1024*128)
+#define FILESIZE (1024*1024*16)
 
 void read_large_file(enum access_mode mode)
 {
@@ -426,6 +426,47 @@ void test_large_file(void)
 	read_large_file(READ_WRITE_SHARED);
 }
 
+void test_multiple_open(void)
+{
+	generate_test_file(1024);
+	mmappable_vector<int> vec1, vec2, vec3, vec4;
+
+	fprintf(stderr, "Testing multiple open (you need to strace this).\n");
+	vec1.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	vec2.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	vec3.mmap_file("testfile2", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	vec4.mmap_file("testfile2", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+}
+
+void test_keep_forever(void)
+{
+	generate_test_file(1024);
+	mmappable_vector<int> vec1, vec2, vec3, vec4;
+
+	fprintf(stderr, "Testing multiple open (you need to strace this).\n");
+	{
+		mmappable_vector<int> vec;
+		fprintf(stderr, "Testing mapping without KEEP_FOREVER (you need to strace this: there should be a close).\n");
+		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	}
+	{
+		mmappable_vector<int> vec;
+		fprintf(stderr, "Testing mapping without KEEP_FOREVER (you need to strace this: the file should be reopened).\n");
+		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	}
+	{
+		mmappable_vector<int> vec;
+		fprintf(stderr, "Testing mapping with KEEP_FOREVER (you need to strace this: there should be NO close).\n");
+		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
+	}
+	{
+		mmappable_vector<int> vec;
+		fprintf(stderr, "Testing mapping with KEEP_FOREVER (you need to strace this: the file shouldn't be reopened).\n");
+		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
+	}
+}
+
+
 int main(int argc, char ** argv)
 {
 	test_page_align_macros();
@@ -442,4 +483,6 @@ int main(int argc, char ** argv)
 	test_new_interface();
 	test_private_file_pool();
 	test_large_file();
+	test_multiple_open();
+	test_keep_forever();
 }

@@ -19,7 +19,8 @@ namespace mmap_allocator_namespace
 	enum allocator_flags {
 		MAP_WHOLE_FILE = 1,
 		ALLOW_REMAP = 2,
-		BYPASS_FILE_POOL = 4
+		BYPASS_FILE_POOL = 4,
+		KEEP_FOREVER = 8
 	};
 
 	void set_verbosity(int v);
