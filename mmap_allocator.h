@@ -38,6 +38,9 @@ public:
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				return std::allocator<T>::allocate(n, hint);
 			} else {
+				if (n == 0) {
+					return NULL;
+				}
 				if (bypass_file_pool) {
 					the_pointer = private_file.open_and_mmap_file(filename, access_mode, offset, n*sizeof(T), map_whole_file, allow_remap);
 				} else {
