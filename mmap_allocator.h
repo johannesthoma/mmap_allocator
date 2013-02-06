@@ -65,6 +65,9 @@ public:
 			if (access_mode == DEFAULT_STL_ALLOCATOR) {
 				std::allocator<T>::deallocate(p, n);
 			} else {
+				if (n == 0) {
+					return;
+				}
 				if (bypass_file_pool) {
 					private_file.munmap_and_close_file();
 				} else {

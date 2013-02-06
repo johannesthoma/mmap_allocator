@@ -467,8 +467,25 @@ void test_keep_forever(void)
 }
 
 
+void test_allocate_0_bytes(void) /* shouldn't segfault */
+{
+	fprintf(stderr, "Testing vectors of mmappable_vectors.\n");
+
+	vector<mmappable_vector<int> > vecs;
+	vecs.resize(2);
+	for (int i=0; i<2; i++) {
+		vecs[i].mmap_file("testfile", READ_ONLY, 0, 1024, 0);
+	        for (int j=0;j<1024;j++) {
+			assert(vecs[i][j] == j);
+	        }
+	}
+}
+
+
 int main(int argc, char ** argv)
 {
+	set_verbosity(1);
+
 	test_page_align_macros();
 	test_throw_catch();
 	test_exceptions();
@@ -485,4 +502,5 @@ int main(int argc, char ** argv)
 	test_large_file();
 	test_multiple_open();
 	test_keep_forever();
+	test_allocate_0_bytes();
 }
