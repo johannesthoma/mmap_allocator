@@ -2,6 +2,7 @@
 #include "mmap_exception.h"
 #include "mmappable_vector.h"
 #include <stdio.h>
+#include <string.h>
 #include <vector>
 #include <assert.h>
 #include <memory>
