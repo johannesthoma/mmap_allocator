@@ -1,5 +1,5 @@
-CPPFLAGS=-g -Wall
-CFLAGS=-g -Wall
+CPPFLAGS=-g -Wall -fPIC
+CFLAGS=-g -Wall -fPIC
 
 # Enable to test with GCC 3.4
 # CXX=g++34
