@@ -34,11 +34,11 @@ install: all
 	
 test: all
 	@echo "Running mmap allocator regression test suite."
-	./test_allocator
+	bash -c 'export LD_LIBRARY_PATH=. ; ./test_allocator'
 
 debugtest: debug
 	@echo "Running mmap allocator regression test suite with verbose enabled."
-	./test_allocator
+	bash -c 'export LD_LIBRARY_PATH=. ; ./test_allocator'
 
 test_allocator: mmap_allocator.h mmap_file_pool.o test_allocator.o $(LIBRARIES)
 	g++ test_allocator.o -L. -lmmap_allocator -o test_allocator
