@@ -16,13 +16,14 @@ using namespace std;
 using namespace mmap_allocator_namespace;
 
 #define TESTFILE "testfile"
+#define TESTFILE2 "testfile2"
 
-void generate_test_file(int count)
+void generate_test_file(int count, const char *fname)
 {
 	FILE *f;
 	int i;
 
-	f = fopen(TESTFILE, "w+");
+	f = fopen(fname, "w+");
 	for (i=0;i<count;i++) {
 		fwrite(&i, 1, sizeof(i), f);
 	}
@@ -85,7 +86,7 @@ void test_exceptions(void)
 {
 	bool exception_thrown;
 
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 	exception_thrown = false;
 	try {
 		vector<int, mmap_allocator<int> > int_vec(1024, 0, mmap_allocator<int>("", READ_ONLY));
@@ -123,7 +124,7 @@ void test_mmap(void)
 	int i;
 
 	fprintf(stderr, "Testing int_vec_default\n");
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 	mmappable_vector<int, mmap_allocator<int> > int_vec_default = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>(TESTFILE, DEFAULT_STL_ALLOCATOR, 0));
 	int_vec_default.mmap_file(1024);
 	assert(int_vec_default.size() == 1024);
@@ -134,7 +135,7 @@ void test_mmap(void)
 	test_test_file(1024, false);
 
 	fprintf(stderr, "Testing int_vec_rw_private\n");
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 	mmappable_vector<int, mmap_allocator<int> > int_vec_rw_private = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>(TESTFILE, READ_WRITE_PRIVATE, 0));
 	int_vec_rw_private.mmap_file(1024);
 	for (i=0;i<1024;i++) {
@@ -182,7 +183,7 @@ void test_mmap(void)
 	test_test_file(1024, true);
 
 	fprintf(stderr, "Testing int_vec_big\n");
-	generate_test_file(1024*1024);
+	generate_test_file(1024*1024, TESTFILE);
 	mmappable_vector<int, mmap_allocator<int> > int_vec_big = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>(TESTFILE, READ_ONLY, 0, MAP_WHOLE_FILE | ALLOW_REMAP));
 	int_vec_big.mmap_file(1024*1024);
 	for (i=0;i<1024*1024;i++) {
@@ -192,7 +193,7 @@ if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_b
 	test_test_file(1024*1024, false);
 
 	fprintf(stderr, "Testing int_vec_shifted_big\n");
-	generate_test_file(1024*1024);
+	generate_test_file(1024*1024, TESTFILE);
 	mmappable_vector<int, mmap_allocator<int> > int_vec_shifted_big = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>(TESTFILE, READ_ONLY, sizeof(i), MAP_WHOLE_FILE | ALLOW_REMAP));
 	int_vec_shifted_big.mmap_file(1024*1024-1);
 	for (i=0;i<1024*1024-1;i++) {
@@ -201,7 +202,7 @@ if (int_vec_big[i] != i) { fprintf(stderr, "falsch: i=%d val=%d\n", i, int_vec_b
 	test_test_file(1024*1024, false);
 
 	fprintf(stderr, "Testing int_vec_big_minus_one\n");
-	generate_test_file(1024*1024-1);
+	generate_test_file(1024*1024-1, TESTFILE);
 	mmappable_vector<int, mmap_allocator<int> > int_vec_big_minus_one = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>(TESTFILE, READ_ONLY, 0, MAP_WHOLE_FILE | ALLOW_REMAP));
 	int_vec_big_minus_one.mmap_file(1024*1024-1);
 	for (i=0;i<1024*1024-1;i++) {
@@ -218,7 +219,7 @@ void test_conversion(void)
 	int i;
 
 	fprintf(stderr, "Testing conversion between STL vector and mmap vector.\n");
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 	mmap_vector.mmap_file(TESTFILE, READ_ONLY, 0, 1024);
 	for (i=0;i<1024;i++) {
 		assert(mmap_vector[i] == i);
@@ -240,7 +241,7 @@ void test_conversion(void)
 
 void test_mmap_file_pool(void)
 {
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 	int *f = (int*)the_pool.mmap_file(string(TESTFILE), READ_ONLY, 0, 1024, false, false);
 	int *f2 = (int*)the_pool.mmap_file(string(TESTFILE), READ_ONLY, 0, 1024, false, false);
 	int i;
@@ -257,7 +258,7 @@ void test_mmap_file_pool(void)
 void test_mapping_smaller_area(void)
 {
 	fprintf(stderr, "Testing mapping of areas that fit in already mapped areas\n");
-	generate_test_file(2048);
+	generate_test_file(2048, TESTFILE);
 
 	int *f = (int*)the_pool.mmap_file(string(TESTFILE), READ_ONLY, 0, 8192, false, false);
 	int *first_page = (int*)the_pool.mmap_file(string(TESTFILE), READ_ONLY, 0, 4096, false, false);
@@ -275,7 +276,7 @@ void test_mapping_smaller_area(void)
 void test_mapping_smaller_area_whole_file_flag(void)
 {
 	fprintf(stderr, "Testing whole file flag\n");
-	generate_test_file(2048);
+	generate_test_file(2048, TESTFILE);
 
 	int *f = (int*)the_pool.mmap_file(string(TESTFILE), READ_ONLY, 0, 1, true, false);
 	int *first_page = (int*)the_pool.mmap_file(string(TESTFILE), READ_ONLY, 0, 4096, false, false);
@@ -295,7 +296,7 @@ void test_mapping_smaller_area_whole_file_flag_allocator(void)
 	int i;
 
 	fprintf(stderr, "Testing whole file flag via allocator\n");
-	generate_test_file(2048);
+	generate_test_file(2048, TESTFILE);
 
 	fprintf(stderr, "Testing int_vec_ro\n");
 	mmappable_vector<int, mmap_allocator<int> > int_vec_ro = mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>(TESTFILE, READ_ONLY, 0, MAP_WHOLE_FILE));
@@ -317,7 +318,7 @@ void test_mapping_smaller_area_whole_file_flag_allocator_deleting_first_vec(void
 	int i;
 
 	fprintf(stderr, "Testing whole file flag via allocator, deleting first mapping before allocating second page\n");
-	generate_test_file(2048);
+	generate_test_file(2048, TESTFILE);
 
 	fprintf(stderr, "Testing int_vec_ro\n");
 	mmappable_vector<int, mmap_allocator<int> > *int_vec_ro_p = new mmappable_vector<int, mmap_allocator<int> >(mmap_allocator<int>(TESTFILE, READ_ONLY, 0, MAP_WHOLE_FILE));
@@ -342,7 +343,7 @@ void test_new_interface(void)
 
 	fprintf(stderr, "Testing new interface\n");
 
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 
 	mmappable_vector<int> vec;
 	vec.mmap_file(TESTFILE, READ_ONLY, 0, 1024);
@@ -358,7 +359,7 @@ void test_new_interface(void)
 	}
 	vec.munmap_file();
 
-	generate_test_file(2048);
+	generate_test_file(2048, TESTFILE);
 	vec.mmap_file(TESTFILE, READ_ONLY, 4096, 1024);
 	for (i=0;i<1024;i++) {
 		assert(vec[i] == i+1024);
@@ -371,7 +372,7 @@ void test_cache_bug(void)
 	int i;
 	
 	fprintf(stderr, "Testing if wrong offset bug in pool is fixed.\n");
-	generate_test_file(2048);
+	generate_test_file(2048, TESTFILE);
 	vec.mmap_file(TESTFILE, READ_ONLY, 4096, 1024);
 
 	for (i=0;i<1024;i++) {
@@ -386,7 +387,7 @@ void test_private_file_pool(void)
 	int i;
 	
 	fprintf(stderr, "Testing if bypass_file_pool works.\n");
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 	vec.mmap_file(TESTFILE, READ_ONLY, 0, 1024, BYPASS_FILE_POOL);
 	for (i=0;i<1024;i++) {
 		assert(vec[i] == i);
@@ -420,7 +421,7 @@ void read_large_file(enum access_mode mode)
 void test_large_file(void)
 {
 	fprintf(stderr, "Testing large file.\n");
-	generate_test_file(FILESIZE); /* 1G */
+	generate_test_file(FILESIZE, TESTFILE); /* 1G */
 
 	read_large_file(READ_ONLY);
 	read_large_file(READ_WRITE_PRIVATE);
@@ -429,41 +430,42 @@ void test_large_file(void)
 
 void test_multiple_open(void)
 {
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
+	generate_test_file(1024, TESTFILE2);
 	mmappable_vector<int> vec1, vec2, vec3, vec4;
 
 	fprintf(stderr, "Testing multiple open (you need to strace this).\n");
-	vec1.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
-	vec2.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
-	vec3.mmap_file("testfile2", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
-	vec4.mmap_file("testfile2", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	vec1.mmap_file(TESTFILE, READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	vec2.mmap_file(TESTFILE, READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	vec3.mmap_file(TESTFILE2, READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+	vec4.mmap_file(TESTFILE2, READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
 }
 
 void test_keep_forever(void)
 {
-	generate_test_file(1024);
+	generate_test_file(1024, TESTFILE);
 	mmappable_vector<int> vec1, vec2, vec3, vec4;
 
 	fprintf(stderr, "Testing multiple open (you need to strace this).\n");
 	{
 		mmappable_vector<int> vec;
 		fprintf(stderr, "Testing mapping without KEEP_FOREVER (you need to strace this: there should be a close).\n");
-		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+		vec.mmap_file(TESTFILE, READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
 	}
 	{
 		mmappable_vector<int> vec;
 		fprintf(stderr, "Testing mapping without KEEP_FOREVER (you need to strace this: the file should be reopened).\n");
-		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
+		vec.mmap_file(TESTFILE, READ_ONLY, 0, 1024, MAP_WHOLE_FILE);
 	}
 	{
 		mmappable_vector<int> vec;
 		fprintf(stderr, "Testing mapping with KEEP_FOREVER (you need to strace this: there should be NO close).\n");
-		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
+		vec.mmap_file(TESTFILE, READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
 	}
 	{
 		mmappable_vector<int> vec;
 		fprintf(stderr, "Testing mapping with KEEP_FOREVER (you need to strace this: the file shouldn't be reopened).\n");
-		vec.mmap_file("testfile", READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
+		vec.mmap_file(TESTFILE, READ_ONLY, 0, 1024, MAP_WHOLE_FILE | KEEP_FOREVER);
 	}
 }
 
@@ -475,7 +477,7 @@ void test_allocate_0_bytes(void) /* shouldn't segfault */
 	vector<mmappable_vector<int> > vecs;
 	vecs.resize(2);
 	for (int i=0; i<2; i++) {
-		vecs[i].mmap_file("testfile", READ_ONLY, 0, 1024, 0);
+		vecs[i].mmap_file(TESTFILE, READ_ONLY, 0, 1024, 0);
 	        for (int j=0;j<1024;j++) {
 			assert(vecs[i][j] == j);
 	        }
