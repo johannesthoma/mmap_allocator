@@ -32,3 +32,4 @@ Conversion function template from std vectors to mmapped vectors (if possible):
 	Only can convert from mmappable_vectors to std::vectors, don't 
 	know how to convert the other way.
 
+std:string support
