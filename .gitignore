@@ -1,5 +1,7 @@
 testfile
+testfile2
 test_allocator
 *.o
 .*.swp
 *.so
+*.a

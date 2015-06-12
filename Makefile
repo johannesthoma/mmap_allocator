@@ -47,7 +47,7 @@ test_mmap_fixed: test_mmap_fixed.c
 	gcc $(CFLAGS) test_mmap_fixed.c -o test_mmap_fixed
 
 clean:
-	rm -f test_allocator test_mmap_fixed testfile *.o $(LIBRARIES)
+	rm -f test_allocator test_mmap_fixed testfile testfile2 *.o $(LIBRARIES)
 
 mmap_file_pool.o: mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h mmap_exception.h
 
