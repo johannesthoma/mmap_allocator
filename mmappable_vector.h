@@ -8,7 +8,7 @@
 #include "mmap_allocator.h"
 
 namespace mmap_allocator_namespace {
-	template <typename T, typename A = mmap_allocator<T> > 
+	template <typename T, typename A = mmap_allocator<T> >
 	class mmappable_vector: public std::vector<T, A> {
 public:
 		typedef std::vector<T, A> Base;
@@ -43,7 +43,7 @@ public:
 			Base(from, to)
 		{
 		}
-		
+
 		template <typename Iter>
 		mmappable_vector(Iter first, Iter last, A a = A()):
 			Base(first, last, a)
@@ -78,16 +78,14 @@ public:
 				throw mmap_allocator_exception("Remapping currently not implemented.");
 			}
 #ifdef __GNUC__
-#if __GNUC__ == 4
-			A *the_allocator = &Base::_M_get_Tp_allocator();
-#elif __GNUC__ == 3
+#if __GNUC__ == 3
 			A *the_allocator = static_cast<A*>(&(this->Base::_M_impl));
 #else
-#error "GNU C++ not version 3 or 4, please implement me"
-#endif		
+			A *the_allocator = &Base::_M_get_Tp_allocator();
+#endif
 #else
 #error "Not GNU C++, please either implement me or use GCC"
-#endif		
+#endif
 			the_allocator->filename = filename;
 			the_allocator->offset = offset;
 			the_allocator->access_mode = access_mode;
@@ -119,17 +117,17 @@ private:
 			Base::_M_impl._M_finish = Base::_M_impl._M_start + n;
 #else
 #error "Not GNU C++, please either implement me or use GCC"
-#endif		
+#endif
 		}
 	};
 
-	template <typename T> 
+	template <typename T>
 	std::vector<T> to_std_vector(const mmappable_vector<T> &v)
 	{
 		return std::vector<T>(v.begin(), v.end());
 	}
 
-	template <typename T> 
+	template <typename T>
 	mmappable_vector<T> to_mmappable_vector(const std::vector<T> &v)
 	{
 		return mmappable_vector<T>(v.begin(), v.end());
