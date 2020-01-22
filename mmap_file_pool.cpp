@@ -162,8 +162,6 @@ namespace mmap_allocator_namespace {
 		size_mapped = length_to_map;
 		reference_count++;
 
-        madvise(memory_area, size_mapped, POSIX_MADV_WILLNEED | POSIX_MADV_SEQUENTIAL);
-
 		void *ret = ((char*)memory_area)+offset-offset_to_map;
 		// assert(ret >= memory_area && ret < (char*)memory_area+size_mapped);
 
