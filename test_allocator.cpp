@@ -37,7 +37,7 @@ void test_test_file(int count, bool expect_zeros)
 
 	f = fopen(TESTFILE, "r");
 	for (i=0;i<count;i++) {
-		fread(&j, 1, sizeof(j), f);
+		size_t r = fread(&j, 1, sizeof(j), f);
 		assert(j == (expect_zeros ? 0 : i));
 	}
 	fclose(f);
