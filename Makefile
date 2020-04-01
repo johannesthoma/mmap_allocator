@@ -1,5 +1,5 @@
-CPPFLAGS=-g -Wall -fPIC
-CFLAGS=-g -Wall -fPIC
+CXXFLAGS=-Wall -fPIC
+CFLAGS=-Wall -fPIC
 
 # Enable to test with GCC 3.4
 # CXX=g++34
@@ -13,14 +13,14 @@ LIBRARIES=libmmap_allocator.so libmmap_allocator.a
 
 SRC_INSTALL_TARGET_DIR=/home/johannes/re3
 
-all: test_allocator mmap_file_pool.o $(LIBRARIES)
+all: $(LIBRARIES)
 
-debug: CPPFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
-debug: CFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1
+debug: CXXFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1 -g
+debug: CFLAGS+=-DMMAP_ALLOCATOR_DEBUG=1 -g
 debug: clean all
 
 libmmap_allocator.so: mmap_file_pool.o
-	g++ -shared -o libmmap_allocator.so mmap_file_pool.o
+	$(CXX) -shared -o libmmap_allocator.so mmap_file_pool.o
 
 libmmap_allocator.a: mmap_file_pool.o
 	ar r libmmap_allocator.a mmap_file_pool.o
@@ -29,24 +29,22 @@ install_sources: $(SOURCES)
 	cp $(SOURCES) $(SRC_INSTALL_TARGET_DIR)
 
 install: all
-	install -m 644 $(HEADERS) $(PREFIX)/include
-	install -m 755 $(LIBRARIES) $(PREFIX)/lib
-	
-test: all
 	install -Dm 644 -t $(DESTDIR)$(PREFIX)/include $(HEADERS)
 	install -Dm 755 -t $(DESTDIR)$(PREFIX)/lib $(LIBRARIES)
+
+test: test_allocator
 	@echo "Running mmap allocator regression test suite."
 	bash -c 'export LD_LIBRARY_PATH=. ; ./test_allocator'
 
-debugtest: debug
+debugtest: debug test_allocator
 	@echo "Running mmap allocator regression test suite with verbose enabled."
 	bash -c 'export LD_LIBRARY_PATH=. ; ./test_allocator'
 
 test_allocator: mmap_allocator.h mmap_file_pool.o test_allocator.o $(LIBRARIES)
-	g++ test_allocator.o -L. -lmmap_allocator -o test_allocator
+	$(CXX) test_allocator.o -L. -lmmap_allocator -o test_allocator
 
 test_mmap_fixed: test_mmap_fixed.c
-	gcc $(CFLAGS) test_mmap_fixed.c -o test_mmap_fixed
+	$(CC) $(CFLAGS) test_mmap_fixed.c -o test_mmap_fixed
 
 clean:
 	rm -f test_allocator test_mmap_fixed testfile testfile2 *.o $(LIBRARIES)
