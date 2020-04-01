@@ -8,7 +8,7 @@ PREFIX=/usr
 
 SOURCES=mmap_file_pool.cpp mmap_file_pool.h mmap_allocator.h mmap_access_mode.h mmappable_vector.h mmap_exception.h
 
-HEADERS=mmap_access_mode.h mmap_allocator.h mmap_file_pool.h mmap_exception.h
+HEADERS=mmap_access_mode.h mmap_allocator.h mmap_file_pool.h mmap_exception.h mmappable_vector.h
 LIBRARIES=libmmap_allocator.so libmmap_allocator.a
 
 SRC_INSTALL_TARGET_DIR=/home/johannes/re3
@@ -33,6 +33,8 @@ install: all
 	install -m 755 $(LIBRARIES) $(PREFIX)/lib
 	
 test: all
+	install -Dm 644 -t $(DESTDIR)$(PREFIX)/include $(HEADERS)
+	install -Dm 755 -t $(DESTDIR)$(PREFIX)/lib $(LIBRARIES)
 	@echo "Running mmap allocator regression test suite."
 	bash -c 'export LD_LIBRARY_PATH=. ; ./test_allocator'
 
