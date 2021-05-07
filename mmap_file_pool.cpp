@@ -119,7 +119,7 @@ namespace mmap_allocator_namespace {
 			length_to_map = filesize(fd, filename);
 		} else {
 			offset_to_map = ALIGN_TO_PAGE(offset);
-			length_to_map = UPPER_ALIGN_TO_PAGE(length);
+			length_to_map = UPPER_ALIGN_TO_PAGE(length + offset - offset_to_map);
 		}
 
 		if (offset_to_map == offset_mapped && length_to_map == size_mapped) {
