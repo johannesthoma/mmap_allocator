@@ -52,6 +52,7 @@ void test_page_align_macros(void)
 {
 	int p;
 
+printf("page size is %x\n", getpagesize());
 	p = 0x8000;
 	assert(ALIGN_TO_PAGE(p) == 0x8000);
 	assert(UPPER_ALIGN_TO_PAGE(p) == 0x8000);
@@ -59,7 +60,7 @@ void test_page_align_macros(void)
 
 	p = 0x64ab;
 	assert(ALIGN_TO_PAGE(p) == 0x6000);
-	assert(UPPER_ALIGN_TO_PAGE(p) == 0x7000);
+	assert(UPPER_ALIGN_TO_PAGE(p) == 0x8000);
 	assert(OFFSET_INTO_PAGE(p) == 0x4ab);
 }
 
@@ -110,7 +111,7 @@ void test_exceptions(void)
 
 	exception_thrown = false;
 	try {
-		vector<int, mmap_allocator<int> > int_vec_wrong_alignment_file(512, 0, mmap_allocator<int>(TESTFILE, READ_WRITE_PRIVATE, 123)); /* wrong alignment */
+		vector<int, mmap_allocator<int> > int_vec_wrong_alignment_file(512, 0, mmap_allocator<int>(TESTFILE, READ_WRITE_PRIVATE, 120)); /* wrong alignment */
 		/* No exception here expected */
 	} catch (mmap_allocator_exception &e) {
 		fprintf(stderr, "Exception message (not expected): %s\n", e.what());

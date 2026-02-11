@@ -142,6 +142,7 @@ namespace mmap_allocator_namespace {
 		}
 
 		memory_area = mmap(address_to_map, length_to_map, prot, mmap_mode, fd, offset_to_map);
+printf("memory area is %x\n", memory_area);
 		if (address_to_map != NULL && !allow_remap && memory_area != MAP_FAILED && memory_area != address_to_map) {
 			if (munmap(memory_area, length_to_map) < 0) {
 				if (get_verbosity() > 0) {
