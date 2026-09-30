@@ -5,3 +5,5 @@ test_allocator
 .*.swp
 *.so
 *.a
+build/
+*~
